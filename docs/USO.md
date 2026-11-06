@@ -12,12 +12,14 @@ O Moto C Plus funciona como um display dedicado. São três telas: o painel do s
   - servidor sem resposta: fica procurando;
   - tudo bem: tem manias aleatórias, incluindo os olhos de coração.
   - Tocar nele: olha para o dedo e diz "oi!". Dois toques são cócegas; de 3 em diante ele fica bravo e, a partir de 5, dramático. Depois de 3 s sem toque ele esquece.
+  - Ciúme: depois de mais de 30 s na tela de música, ele volta emburrado; depois de 3 min, dramático.
   - O humor muda com a hora:
     - manhã (6h–12h): agitado, mexe muito e dá pulinhos;
     - tarde (12h–18h): vai ficando cansado, com sono cada vez mais frequente;
     - noite (18h–6h): calmo, olhos tranquilos e poucas manias.
 - **Arrastar para a direita (painel):** CPU, RAM, disco e temperatura, gráfico da CPU na última hora, tempo ligado e a lista de containers, com os que têm problema primeiro (vermelho = fora, âmbar = não está bem). Embaixo fica a escolha de **tema**: a cor vale para o rosto, a música e o painel.
 - **Arrastar para a esquerda (música):** tela de música com capa e botões ⏮ ⏯ ⏭. As barras estilo cava simulam um ritmo próprio de cada música enquanto ela toca e param no pause. Elas não seguem a batida real, porque o áudio fica no fone do PC. Depois de 60 s sem toque, qualquer tela volta para o rosto.
+- **Desligar:** segure o botão de ligar e toque em "Desligar". Ao ligar, ele volta direto para o rosto.
 - **Configurações escondidas:** segure o **canto superior esquerdo por 5 s**. Ali ficam a URL do Glances, os limites de CPU, disco e temperatura, o brilho e o botão "Sair do modo kiosk".
 
 ## Pelo PC (com o celular no USB)

@@ -310,4 +310,39 @@ class MoodEngineTest {
         f.onTouch(0f, 0f, 1_000)
         assertEquals(Expression.CURIOSO, f.state(listOf(Problem.CpuHigh(90.0)), 1_100).expression)
     }
+
+    @Test
+    fun short_music_visit_is_fine() {
+        val e = engine()
+        e.onBackFromMusic(10_000, 1_000)
+        assertEquals("tudo tranquilo", e.state(emptyList(), 1_100).caption)
+    }
+
+    @Test
+    fun long_music_visit_makes_him_jealous() {
+        val e = engine()
+        e.onBackFromMusic(40_000, 1_000)
+        val s = e.state(emptyList(), 1_100)
+        assertEquals(Expression.BRAVO, s.expression)
+        assertEquals("hmpf... trocou eu pela música", s.caption)
+        assertTrue(s.gazeX < -0.5f)
+        assertEquals("tudo tranquilo", e.state(emptyList(), 5_200).caption)
+    }
+
+    @Test
+    fun very_long_music_visit_is_dramatic() {
+        val e = engine()
+        e.onBackFromMusic(200_000, 1_000)
+        val s = e.state(emptyList(), 1_100)
+        assertEquals(Expression.DRAMATICO, s.expression)
+        assertEquals("achei que tinha me esquecido!", s.caption)
+    }
+
+    @Test
+    fun tap_cheers_up_jealous() {
+        val e = engine()
+        e.onBackFromMusic(40_000, 1_000)
+        e.onTouch(0f, 0f, 2_000)
+        assertEquals("oi!", e.state(emptyList(), 2_100).caption)
+    }
 }

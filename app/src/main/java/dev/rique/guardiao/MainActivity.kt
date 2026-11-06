@@ -49,6 +49,7 @@ class MainActivity : Activity() {
     private val detector = EventDetector()
     private val mood = MoodEngine(Random())
     private var lastTouchMs = 0L
+    private var musicSinceMs = 0L
 
     private val tick = object : Runnable {
         override fun run() {
@@ -87,8 +88,16 @@ class MainActivity : Activity() {
         applyTheme(Themes.byId(settings.theme))
         pages = PagerLayout(this, listOf(panel, face, music), PAGE_FACE)
         pages.onPageChanged = { page ->
-            lastTouchMs = System.currentTimeMillis()
-            if (page == PAGE_MUSIC) startMusic() else stopMusic()
+            val now = System.currentTimeMillis()
+            lastTouchMs = now
+            if (page == PAGE_MUSIC) {
+                musicSinceMs = now
+                startMusic()
+            } else {
+                if (musicSinceMs > 0) mood.onBackFromMusic(now - musicSinceMs, now)
+                musicSinceMs = 0
+                stopMusic()
+            }
         }
         readToken(intent)
         setContentView(pages)

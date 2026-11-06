@@ -67,6 +67,16 @@ class MoodEngine(
         touchUntilMs = nowMs + if (touchCount >= 3) 2_200 else 1_500
     }
 
+    fun onBackFromMusic(stayedMs: Long, nowMs: Long) {
+        val (expression, caption) = when {
+            stayedMs >= 180_000 -> Expression.DRAMATICO to "achei que tinha me esquecido!"
+            stayedMs >= 30_000 -> Expression.BRAVO to "hmpf... trocou eu pela música"
+            else -> return
+        }
+        touchState = MoodState(expression, gazeX = -0.9f, gazeY = 0.3f, caption = caption)
+        touchUntilMs = nowMs + 4_000
+    }
+
     fun state(problems: List<Problem>, nowMs: Long): MoodState {
         if (nextQuirkAtMs < 0) nextQuirkAtMs = nowMs + quirkGap(nowMs)
         if (nextBlinkAtMs < 0) nextBlinkAtMs = nowMs + 2_500 + random.nextInt(3_500)

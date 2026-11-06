@@ -50,6 +50,8 @@ Depois de 60 s sem toque, qualquer tela volta para o Zé Pingo.
   <img src="docs/img/socorro.png" width="320" alt="Zé Pingo dramático">
 </p>
 
+**Ciúme da música:** se você passa mais de 30 s na tela de música, ele volta emburrado, olhando para o outro lado ("hmpf... trocou eu pela música"). Depois de 3 min, fica dramático: "achei que tinha me esquecido!". Um toque nele desfaz o bico.
+
 **A hora do dia:**
 - **Manhã (6h–12h):** agitado, mexe toda hora e dá pulinhos.
 - **Tarde (12h–18h):** vai cansando, com sono cada vez mais frequente.
@@ -99,6 +101,10 @@ Requisitos: JDK 21, Android SDK (API 35) e um servidor com Glances acessível na
       ```sh
       python3 device/spotify-login.py adb
       ```
+
+## Desligando
+
+Segure o botão de ligar e toque em **Desligar**. Ao ligar de novo, ele volta direto para o Zé Pingo. Com o cabo no PC também dá: `adb shell reboot -p`.
 
 ## Voltando ao normal
 
