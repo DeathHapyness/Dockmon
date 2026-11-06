@@ -84,6 +84,8 @@ app/src/main/java/dev/rique/guardiao/
 
 Moto C Plus (XT1726), Android 7.0, MT6737M, cerca de 900 MB de RAM, tela 720×1280. O bootloader segue bloqueado, então o logo da Motorola ainda aparece no boot. Qualquer Android 7+ deve servir.
 
+**Suporte impresso em 3D:** o celular fica num suporte com inclinação ajustável, duas ventoinhas atrás e uma moldura que deixa só a tela aparecendo. Ele foi feito sob medida para o Moto C Plus. STLs, peças e montagem em [`suporte/`](suporte/README.md).
+
 ## Montando o seu
 
 Requisitos: JDK 21, Android SDK (API 35) e um servidor com Glances acessível na rede.
