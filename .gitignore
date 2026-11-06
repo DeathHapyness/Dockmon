@@ -1,0 +1,9 @@
+.tools/
+.tmp/
+.superpowers/
+build/
+.gradle/
+.kotlin/
+local.properties
+*.apk
+.idea/
