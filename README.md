@@ -54,7 +54,7 @@ Ele fala quando acontece algo com um container ou com o hardware, quando você t
 
 **Ciúme da música:** se você passa mais de 30 s na tela de música, ele volta emburrado, olhando para o outro lado: "hmpf... trocou o segurança pela música". Depois de 3 min, fica dramático: "achei que tinha sido demitido!". Um toque nele desfaz o bico.
 
-**A bateria do celular:** um ícone aparece no canto superior direito, em qualquer tela, quando a bateria está em 20% ou menos fora da tomada (âmbar; pisca em vermelho a partir de 10%) ou quando a bateria passa de 45 °C (pisca em vermelho e mostra a temperatura). Ele também avisa: "bateria em 15%, preciso de tomada!", "bateria em 7%, vou apagar no turno!", "tô a 46 °C, superaquecendo!". Quando esquenta, o brilho cai para 5% até esfriar.
+**A bateria do celular:** um ícone aparece no canto superior direito, em qualquer tela, quando a bateria está em 20% ou menos fora da tomada (âmbar; pisca em vermelho a partir de 10%) ou quando a bateria passa de 45 °C (pisca em vermelho e mostra a temperatura). Ele também avisa: "bateria em 15%, preciso de tomada!", "bateria em 7%, vou apagar no turno!", "tô a 46 °C, superaquecendo!". Quando esquenta, o brilho cai para 5% até esfriar. No painel do servidor, um ícone de bateria ao lado de "SERVIDOR" abre com um toque e mostra carga, temperatura e se está na tomada.
 
 **A hora do dia:**
 - **Manhã (6h–12h):** agitado, mexe toda hora e dá pulinhos.

@@ -6,12 +6,14 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
+import android.os.SystemClock
 import android.text.TextPaint
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import dev.rique.guardiao.power.PhoneBattery
 import dev.rique.guardiao.server.ServerSnapshot
 import dev.rique.guardiao.server.Thresholds
 import dev.rique.guardiao.ui.Theme
@@ -20,6 +22,7 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.hypot
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 class PanelView(context: Context) : View(context) {
     var onThemePicked: ((Theme) -> Unit)? = null
@@ -32,6 +35,17 @@ class PanelView(context: Context) : View(context) {
     private var snapshot: ServerSnapshot? = null
     private var thresholds = Thresholds()
     private var cpuHistory: List<Float> = emptyList()
+    var battery: PhoneBattery? = null
+        set(v) {
+            if (v == field) return
+            field = v
+            invalidate()
+        }
+    private var batteryOpen = false
+    private var batteryToggleMs = 0L
+    private val batteryHit = RectF()
+    private val closeBattery = Runnable { setBatteryOpen(false) }
+    private val batteryFrame = Runnable { invalidate() }
 
     private val background = 0xFF07070A.toInt()
     private val dim = 0x66FFFFFF
@@ -72,6 +86,7 @@ class PanelView(context: Context) : View(context) {
 
         label.textSize = sp(11f)
         canvas.drawText("SERVIDOR", pad, pad + sp(11f), label)
+        drawBattery(canvas, pad + label.measureText("SERVIDOR") + dp(16f), pad + sp(11f) / 2, leftW)
         val s = snapshot
         if (s == null) {
             value.textSize = sp(16f)
@@ -102,6 +117,67 @@ class PanelView(context: Context) : View(context) {
         drawThemes(canvas, pad, h - pad)
 
         drawContainers(canvas, Panel.rows(s.containers), leftW + dp(24f), pad, w - pad, h - pad)
+    }
+
+    private fun drawBattery(canvas: Canvas, left: Float, cy: Float, maxRight: Float) {
+        val b = battery ?: return
+        val now = SystemClock.uptimeMillis()
+        val t = ((now - batteryToggleMs) / BATTERY_ANIM_MS.toFloat()).coerceIn(0f, 1f)
+        val open = if (batteryOpen) t else 1f - t
+        if (t < 1f) postDelayed(batteryFrame, 16)
+
+        val color = when {
+            b.critical || b.hot -> red
+            b.low -> amber
+            else -> theme.glow
+        }
+        val bw = dp(22f)
+        val bh = dp(11f)
+        val top = cy - bh / 2
+        ring.color = color
+        ring.strokeWidth = dp(1.5f)
+        rect.set(left, top, left + bw, top + bh)
+        canvas.drawRoundRect(rect, dp(2f), dp(2f), ring)
+        fill.color = color
+        canvas.drawRect(left + bw, top + bh * 0.3f, left + bw + dp(2.5f), top + bh * 0.7f, fill)
+        val inner = bw - dp(4f)
+        canvas.drawRect(left + dp(2f), top + dp(2f), left + dp(2f) + inner * (b.percent.coerceIn(5, 100) / 100f), top + bh - dp(2f), fill)
+        if (b.charging) {
+            small.textAlign = Paint.Align.LEFT
+            small.textSize = sp(11f)
+            small.color = color
+            canvas.drawText("⚡", left + bw + dp(5f), cy + sp(4f), small)
+        }
+
+        val textLeft = left + bw + dp(if (b.charging) 20f else 8f)
+        batteryHit.set(left - dp(12f), cy - dp(18f), textLeft + dp(12f), cy + dp(18f))
+        if (open > 0f) {
+            val info = "${b.percent}%  ·  ${b.celsius.roundToInt()} °C  ·  ${if (b.charging) "na tomada" else "na bateria"}"
+            small.textAlign = Paint.Align.LEFT
+            small.textSize = sp(12f)
+            val full = min(small.measureText(info), maxRight - textLeft)
+            canvas.save()
+            canvas.clipRect(textLeft, cy - dp(14f), textLeft + full * open, cy + dp(14f))
+            small.color = if (b.alert) color else theme.core
+            small.alpha = (255 * open).toInt()
+            canvas.drawText(info, textLeft, cy + small.textSize * 0.35f, small)
+            canvas.restore()
+            batteryHit.right = textLeft + full * open + dp(12f)
+        }
+        small.alpha = 0xFF
+        small.color = dim
+        small.textAlign = Paint.Align.RIGHT
+    }
+
+    private fun setBatteryOpen(open: Boolean) {
+        if (open == batteryOpen) return
+        val now = SystemClock.uptimeMillis()
+        val done = ((now - batteryToggleMs) / BATTERY_ANIM_MS.toFloat()).coerceIn(0f, 1f)
+        batteryToggleMs = now - ((1f - done) * BATTERY_ANIM_MS).toLong()
+        batteryOpen = open
+        removeCallbacks(closeBattery)
+        if (open) postDelayed(closeBattery, BATTERY_OPEN_MS)
+        invalidate()
     }
 
     private fun drawGauge(canvas: Canvas, g: Gauge, cx: Float, cy: Float, r: Float) {
@@ -222,6 +298,10 @@ class PanelView(context: Context) : View(context) {
             }
             MotionEvent.ACTION_UP -> {
                 if (abs(ev.x - downX) < touchSlop && abs(ev.y - downY) < touchSlop) {
+                    if (battery != null && batteryHit.contains(ev.x, ev.y)) {
+                        setBatteryOpen(!batteryOpen)
+                        return true
+                    }
                     val hit = dotCenters.indexOfFirst { (cx, cy) -> hypot(ev.x - cx, ev.y - cy) < dp(18f) }
                     if (hit >= 0) onThemePicked?.invoke(Themes.all[hit])
                 }
@@ -235,5 +315,7 @@ class PanelView(context: Context) : View(context) {
 
     companion object {
         const val HISTORY_SIZE = 720
+        const val BATTERY_ANIM_MS = 220L
+        const val BATTERY_OPEN_MS = 8_000L
     }
 }

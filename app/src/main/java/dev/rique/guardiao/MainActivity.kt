@@ -164,6 +164,7 @@ class MainActivity : Activity() {
         val wasHot = battery?.hot == true
         battery = b
         badge.battery = b
+        panel.battery = b
         if ((b?.hot == true) != wasHot) Kiosk.apply(this, brightness())
     }
 
