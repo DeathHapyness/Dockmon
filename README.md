@@ -6,7 +6,7 @@ Um bichinho virtual que mora num Moto C Plus antigo e vigia o servidor de casa.
 
 > **Feito por IA.** Todo o código, os testes, os scripts e esta documentação foram escritos pelo Claude (Anthropic), via Claude Code, a partir das ideias e dos testes no aparelho do autor do projeto.
 
-**Clanker** são dois olhos brilhantes que moram num celular velho, em pé na mesa, e vivem de olho no servidor de casa. Quando um container cai, ele leva um susto: os olhos ficam vermelhos e a imagem treme com glitch. Quando o container volta, ele comemora, e quando aparece um container novo, solta fogos. Fica bravo quando a CPU esquenta, faz drama quando o disco enche e sai procurando quando o servidor some. De manhã está agitado e dá pulinhos, à tarde vai ficando com sono e à noite fica calmo. Olha para os lados sem motivo e às vezes fica apaixonado do nada. Ri quando leva cócegas, perde a paciência quando é cutucado demais e fica com ciúme quando você passa tempo demais na tela de música.
+**Clanker**, o segurança dedicado demais: um robozinho que leva o trabalho de vigiar o servidor como se fosse a missão da vida dele. Fala de cada container como se fosse um filho, entra em pânico com qualquer queda e comemora uma volta como final de campeonato. Nunca tirou férias e não pretende tirar. No fundo, tem medo de que, se piscar por muito tempo, alguma coisa caia.
 
 O celular vira um display dedicado: liga direto no Clanker, sem launcher, barra de status ou tela de bloqueio.
 
