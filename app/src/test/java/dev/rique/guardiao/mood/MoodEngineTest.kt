@@ -14,7 +14,7 @@ class MoodEngineTest {
     fun idle_is_contente_with_caption() {
         val s = engine().state(emptyList(), 0)
         assertEquals(Expression.CONTENTE, s.expression)
-        assertEquals("tudo tranquilo", s.caption)
+        assertEquals("tudo sob controle", s.caption)
     }
 
     @Test
@@ -25,17 +25,17 @@ class MoodEngineTest {
         val scared = e.state(down, 4_999)
         assertEquals(Expression.ASSUSTADO, scared.expression)
         assertEquals(Effect.SHAKE, scared.effect)
-        assertEquals("nginx caiu!", scared.caption)
+        assertEquals("PERDI O nginx!", scared.caption)
         val after = e.state(down, 5_001)
         assertEquals(Expression.PREOCUPADO, after.expression)
-        assertEquals("nginx fora do ar", after.caption)
+        assertEquals("nginx ainda não voltou...", after.caption)
     }
 
     @Test
     fun many_downs_single_scare_with_count() {
         val e = engine()
         e.onEvents(listOf(ServerEvent.Down(listOf("a", "b", "c", "d", "e"))), 0)
-        assertEquals("5 containers caíram!", e.state(emptyList(), 100).caption)
+        assertEquals("PERDI 5 CONTAINERS!", e.state(emptyList(), 100).caption)
     }
 
     @Test
@@ -45,7 +45,7 @@ class MoodEngineTest {
         val s = e.state(emptyList(), 3_999)
         assertEquals(Expression.COMEMORANDO, s.expression)
         assertEquals(Effect.BOUNCE, s.effect)
-        assertEquals("nginx voltou!", s.caption)
+        assertEquals("o nginx voltou pra casa!", s.caption)
         assertEquals(Effect.NONE, e.state(emptyList(), 4_001).effect)
     }
 
@@ -56,8 +56,18 @@ class MoodEngineTest {
         val s = e.state(emptyList(), 5_999)
         assertEquals(Expression.COMEMORANDO, s.expression)
         assertEquals(Effect.FIREWORKS, s.effect)
-        assertEquals("2 containers novos!", s.caption)
+        assertEquals("2 containers novos na família!", s.caption)
         assertEquals(Effect.NONE, e.state(emptyList(), 6_001).effect)
+        val one = engine()
+        one.onEvents(listOf(ServerEvent.New(listOf("redis"))), 0)
+        assertEquals("bem-vindo à família, redis!", one.state(emptyList(), 10).caption)
+    }
+
+    @Test
+    fun idle_caption_follows_the_shift() {
+        assertEquals("tudo sob controle", engine(9).state(emptyList(), 0).caption)
+        assertEquals("ninguém cai no meu turno", engine(15).state(emptyList(), 0).caption)
+        assertEquals("vigiando enquanto você dorme", engine(2).state(emptyList(), 0).caption)
     }
 
     @Test
@@ -70,14 +80,14 @@ class MoodEngineTest {
     @Test
     fun problem_maps_to_expression() {
         val cases = mapOf(
-            Problem.TempCritical("Core 0", 95.4) to (Expression.DRAMATICO to "Core 0 a 95 °C"),
-            Problem.DiskFull("/media", 92.6) to (Expression.DRAMATICO to "disco /media em 93%"),
-            Problem.ContainersDown(listOf("a", "b")) to (Expression.PREOCUPADO to "2 containers fora do ar"),
-            Problem.Unhealthy(listOf("immich")) to (Expression.PREOCUPADO to "immich não está bem"),
-            Problem.Unhealthy(listOf("a", "b", "c")) to (Expression.PREOCUPADO to "3 containers não estão bem"),
-            Problem.TempWarning("Core 1", 76.0) to (Expression.BRAVO to "Core 1 a 76 °C"),
-            Problem.CpuHigh(93.2) to (Expression.BRAVO to "CPU em 93%"),
-            Problem.Unreachable to (Expression.PROCURANDO to "sem contato com o servidor"),
+            Problem.TempCritical("Core 0", 95.4) to (Expression.DRAMATICO to "Core 0 a 95 °C, tá pegando fogo!"),
+            Problem.DiskFull("/media", 92.6) to (Expression.DRAMATICO to "disco /media em 93%, não cabe mais ninguém!"),
+            Problem.ContainersDown(listOf("a", "b")) to (Expression.PREOCUPADO to "2 containers ainda fora..."),
+            Problem.Unhealthy(listOf("immich")) to (Expression.PREOCUPADO to "immich não tá bem, tô cuidando"),
+            Problem.Unhealthy(listOf("a", "b", "c")) to (Expression.PREOCUPADO to "3 containers não tão bem, tô cuidando"),
+            Problem.TempWarning("Core 1", 76.0) to (Expression.BRAVO to "Core 1 a 76 °C, tô de olho"),
+            Problem.CpuHigh(93.2) to (Expression.BRAVO to "CPU em 93%, aguenta firme!"),
+            Problem.Unreachable to (Expression.PROCURANDO to "cadê o servidor?! SERVIDOR?!"),
         )
         for ((problem, expected) in cases) {
             val s = engine().state(listOf(problem), 0)
@@ -197,7 +207,7 @@ class MoodEngineTest {
     fun night_rests_calm() {
         val s = engine(22).state(emptyList(), 0)
         assertEquals(Expression.CALMO, s.expression)
-        assertEquals("tudo tranquilo", s.caption)
+        assertEquals("vigiando enquanto você dorme", s.caption)
         assertTrue(idleRun(22).count { it.expression == Expression.CALMO } > idleRun(22).size / 2)
     }
 
@@ -236,7 +246,7 @@ class MoodEngineTest {
         assertEquals(0.8f, s.gazeX, 0.001f)
         assertEquals(-0.5f, s.gazeY, 0.001f)
         assertEquals(Effect.BOUNCE, s.effect)
-        assertEquals("oi!", s.caption)
+        assertEquals("oi, chefe!", s.caption)
     }
 
     @Test
@@ -245,7 +255,7 @@ class MoodEngineTest {
         e.onTouch(0.8f, -0.5f, 1_000)
         val s = e.state(emptyList(), 2_700)
         assertEquals(Expression.CONTENTE, s.expression)
-        assertEquals("tudo tranquilo", s.caption)
+        assertEquals("tudo sob controle", s.caption)
     }
 
     @Test
@@ -254,7 +264,7 @@ class MoodEngineTest {
         val t = taps(e, 2)
         val s = e.state(emptyList(), t + 100)
         assertEquals(Expression.COMEMORANDO, s.expression)
-        assertEquals("hehe, cócegas!", s.caption)
+        assertEquals("hehe, em serviço não!", s.caption)
     }
 
     @Test
@@ -264,11 +274,11 @@ class MoodEngineTest {
         val angry = e.state(emptyList(), t3 + 100)
         assertEquals(Expression.BRAVO, angry.expression)
         assertEquals(Effect.SHAKE, angry.effect)
-        assertEquals("ei, para de me cutucar!", angry.caption)
+        assertEquals("ei, tô trabalhando!", angry.caption)
         val t5 = taps(e, 2, t3 + 300)
         val drama = e.state(emptyList(), t5 + 100)
         assertEquals(Expression.DRAMATICO, drama.expression)
-        assertEquals("socorro!", drama.caption)
+        assertEquals("socorro, tô em serviço!", drama.caption)
     }
 
     @Test
@@ -286,7 +296,7 @@ class MoodEngineTest {
         val e = engine()
         val t = taps(e, 3)
         e.onTouch(0f, 0f, t + 4_000)
-        assertEquals("oi!", e.state(emptyList(), t + 4_100).caption)
+        assertEquals("oi, chefe!", e.state(emptyList(), t + 4_100).caption)
     }
 
     @Test
@@ -296,7 +306,7 @@ class MoodEngineTest {
         val s = e.state(emptyList(), 1_100)
         assertEquals(Expression.SONOLENTO, s.expression)
         assertEquals(-0.6f, s.gazeX, 0.001f)
-        assertEquals("hm? é de noite...", s.caption)
+        assertEquals("hm? tô de plantão...", s.caption)
     }
 
     @Test
@@ -315,7 +325,7 @@ class MoodEngineTest {
     fun short_music_visit_is_fine() {
         val e = engine()
         e.onBackFromMusic(10_000, 1_000)
-        assertEquals("tudo tranquilo", e.state(emptyList(), 1_100).caption)
+        assertEquals("tudo sob controle", e.state(emptyList(), 1_100).caption)
     }
 
     @Test
@@ -324,9 +334,9 @@ class MoodEngineTest {
         e.onBackFromMusic(40_000, 1_000)
         val s = e.state(emptyList(), 1_100)
         assertEquals(Expression.BRAVO, s.expression)
-        assertEquals("hmpf... trocou eu pela música", s.caption)
+        assertEquals("hmpf... trocou o segurança pela música", s.caption)
         assertTrue(s.gazeX < -0.5f)
-        assertEquals("tudo tranquilo", e.state(emptyList(), 5_200).caption)
+        assertEquals("tudo sob controle", e.state(emptyList(), 5_200).caption)
     }
 
     @Test
@@ -335,7 +345,7 @@ class MoodEngineTest {
         e.onBackFromMusic(200_000, 1_000)
         val s = e.state(emptyList(), 1_100)
         assertEquals(Expression.DRAMATICO, s.expression)
-        assertEquals("achei que tinha me esquecido!", s.caption)
+        assertEquals("achei que tinha sido demitido!", s.caption)
     }
 
     @Test
@@ -343,6 +353,6 @@ class MoodEngineTest {
         val e = engine()
         e.onBackFromMusic(40_000, 1_000)
         e.onTouch(0f, 0f, 2_000)
-        assertEquals("oi!", e.state(emptyList(), 2_100).caption)
+        assertEquals("oi, chefe!", e.state(emptyList(), 2_100).caption)
     }
 }

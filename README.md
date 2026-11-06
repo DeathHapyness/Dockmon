@@ -40,17 +40,17 @@ Depois de 60 s sem toque, qualquer tela volta para o Clanker.
 
 | Toques seguidos | Reação |
 |---|---|
-| 1 | "oi!" e um pulinho (à noite: "hm? é de noite...", com sono) |
-| 2 | "hehe, cócegas!" |
-| 3–4 | "ei, para de me cutucar!", bravo |
-| 5 ou mais | "socorro!", dramático |
+| 1 | "oi, chefe!" e um pulinho (à noite: "hm? tô de plantão...", com sono) |
+| 2 | "hehe, em serviço não!", com cócegas |
+| 3–4 | "ei, tô trabalhando!", bravo |
+| 5 ou mais | "socorro, tô em serviço!", dramático |
 
 <p align="center">
   <img src="docs/img/bravo.png" width="320" alt="Clanker bravo">
   <img src="docs/img/socorro.png" width="320" alt="Clanker dramático">
 </p>
 
-**Ciúme da música:** se você passa mais de 30 s na tela de música, ele volta emburrado, olhando para o outro lado ("hmpf... trocou eu pela música"). Depois de 3 min, fica dramático: "achei que tinha me esquecido!". Um toque nele desfaz o bico.
+**Ciúme da música:** se você passa mais de 30 s na tela de música, ele volta emburrado, olhando para o outro lado ("hmpf... trocou o segurança pela música"). Depois de 3 min, fica dramático: "achei que tinha sido demitido!". Um toque nele desfaz o bico.
 
 **A hora do dia:**
 - **Manhã (6h–12h):** agitado, mexe toda hora e dá pulinhos.

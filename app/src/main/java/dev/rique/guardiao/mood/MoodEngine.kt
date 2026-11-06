@@ -42,11 +42,11 @@ class MoodEngine(
             ?: events.firstOrNull { it is ServerEvent.Up }
             ?: return
         when (e) {
-            is ServerEvent.Down -> setEvent(Expression.ASSUSTADO, Effect.SHAKE, 4_000, plural(e.names, "caiu!", "containers caíram!"), nowMs)
-            is ServerEvent.Up -> setEvent(Expression.COMEMORANDO, Effect.BOUNCE, 4_000, plural(e.names, "voltou!", "containers voltaram!"), nowMs)
+            is ServerEvent.Down -> setEvent(Expression.ASSUSTADO, Effect.SHAKE, 4_000, pick(e.names, { "PERDI O $it!" }, { "PERDI $it CONTAINERS!" }), nowMs)
+            is ServerEvent.Up -> setEvent(Expression.COMEMORANDO, Effect.BOUNCE, 4_000, pick(e.names, { "o $it voltou pra casa!" }, { "$it containers voltaram pra casa!" }), nowMs)
             is ServerEvent.New -> setEvent(
                 Expression.COMEMORANDO, Effect.FIREWORKS, 6_000,
-                if (e.names.size == 1) "container novo: ${e.names[0]}" else "${e.names.size} containers novos!", nowMs,
+                pick(e.names, { "bem-vindo à família, $it!" }, { "$it containers novos na família!" }), nowMs,
             )
         }
     }
@@ -57,11 +57,11 @@ class MoodEngine(
         lastTouchMs = nowMs
         val night = DayPeriod.of(hourOf(nowMs)) == DayPeriod.NOITE
         val (expression, effect, caption) = when {
-            touchCount >= 5 -> Triple(Expression.DRAMATICO, Effect.SHAKE, "socorro!")
-            touchCount >= 3 -> Triple(Expression.BRAVO, Effect.SHAKE, "ei, para de me cutucar!")
-            touchCount == 2 -> Triple(Expression.COMEMORANDO, Effect.BOUNCE, "hehe, cócegas!")
-            night -> Triple(Expression.SONOLENTO, Effect.NONE, "hm? é de noite...")
-            else -> Triple(Expression.CURIOSO, Effect.BOUNCE, "oi!")
+            touchCount >= 5 -> Triple(Expression.DRAMATICO, Effect.SHAKE, "socorro, tô em serviço!")
+            touchCount >= 3 -> Triple(Expression.BRAVO, Effect.SHAKE, "ei, tô trabalhando!")
+            touchCount == 2 -> Triple(Expression.COMEMORANDO, Effect.BOUNCE, "hehe, em serviço não!")
+            night -> Triple(Expression.SONOLENTO, Effect.NONE, "hm? tô de plantão...")
+            else -> Triple(Expression.CURIOSO, Effect.BOUNCE, "oi, chefe!")
         }
         touchState = MoodState(expression, gazeX = x, gazeY = y, effect = effect, caption = caption, effectKey = nowMs)
         touchUntilMs = nowMs + if (touchCount >= 3) 2_200 else 1_500
@@ -69,8 +69,8 @@ class MoodEngine(
 
     fun onBackFromMusic(stayedMs: Long, nowMs: Long) {
         val (expression, caption) = when {
-            stayedMs >= 180_000 -> Expression.DRAMATICO to "achei que tinha me esquecido!"
-            stayedMs >= 30_000 -> Expression.BRAVO to "hmpf... trocou eu pela música"
+            stayedMs >= 180_000 -> Expression.DRAMATICO to "achei que tinha sido demitido!"
+            stayedMs >= 30_000 -> Expression.BRAVO to "hmpf... trocou o segurança pela música"
             else -> return
         }
         touchState = MoodState(expression, gazeX = -0.9f, gazeY = 0.3f, caption = caption)
@@ -109,7 +109,11 @@ class MoodEngine(
             offsetX = q?.offsetX ?: 0f,
             tilt = q?.tilt ?: 0f,
             effect = q?.effect ?: Effect.NONE,
-            caption = "tudo tranquilo",
+            caption = when (DayPeriod.of(hourOf(nowMs))) {
+                DayPeriod.MANHA -> "tudo sob controle"
+                DayPeriod.TARDE -> "ninguém cai no meu turno"
+                DayPeriod.NOITE -> "vigiando enquanto você dorme"
+            },
             blink = blink(expression, nowMs),
         )
     }
@@ -208,17 +212,17 @@ class MoodEngine(
     }
 
     private fun captionFor(p: Problem) = when (p) {
-        is Problem.TempCritical -> "${p.label} a ${p.celsius.roundToInt()} °C"
-        is Problem.TempWarning -> "${p.label} a ${p.celsius.roundToInt()} °C"
-        is Problem.DiskFull -> "disco ${p.mount} em ${p.percent.roundToInt()}%"
-        is Problem.CpuHigh -> "CPU em ${p.percent.roundToInt()}%"
-        is Problem.ContainersDown -> plural(p.names, "fora do ar", "containers fora do ar")
-        is Problem.Unhealthy -> plural(p.names, "não está bem", "containers não estão bem")
-        Problem.Unreachable -> "sem contato com o servidor"
+        is Problem.TempCritical -> "${p.label} a ${p.celsius.roundToInt()} °C, tá pegando fogo!"
+        is Problem.TempWarning -> "${p.label} a ${p.celsius.roundToInt()} °C, tô de olho"
+        is Problem.DiskFull -> "disco ${p.mount} em ${p.percent.roundToInt()}%, não cabe mais ninguém!"
+        is Problem.CpuHigh -> "CPU em ${p.percent.roundToInt()}%, aguenta firme!"
+        is Problem.ContainersDown -> pick(p.names, { "$it ainda não voltou..." }, { "$it containers ainda fora..." })
+        is Problem.Unhealthy -> pick(p.names, { "$it não tá bem, tô cuidando" }, { "$it containers não tão bem, tô cuidando" })
+        Problem.Unreachable -> "cadê o servidor?! SERVIDOR?!"
     }
 
-    private fun plural(names: List<String>, one: String, many: String) =
-        if (names.size == 1) "${names[0]} $one" else "${names.size} $many"
+    private fun pick(names: List<String>, one: (String) -> String, many: (Int) -> String) =
+        if (names.size == 1) one(names[0]) else many(names.size)
 
     private companion object {
         const val BLINK_MS = 120L
