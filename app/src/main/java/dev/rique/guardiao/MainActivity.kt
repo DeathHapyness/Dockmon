@@ -68,6 +68,11 @@ class MainActivity : Activity() {
         detector.thresholds = settings.thresholds()
 
         face = FaceView(this)
+        face.onTap = { x, y ->
+            val now = System.currentTimeMillis()
+            mood.onTouch(x, y, now)
+            face.update(mood.state(detector.problems(now), now))
+        }
         music = MusicView(this)
         musicPoller = MusicPoller(settings) { r, cover ->
             nowPlaying = r

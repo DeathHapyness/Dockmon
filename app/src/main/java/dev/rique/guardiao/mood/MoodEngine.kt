@@ -25,6 +25,11 @@ class MoodEngine(
     private var eventCaption = ""
     private var eventUntilMs = -1L
 
+    private var touchState: MoodState? = null
+    private var touchUntilMs = -1L
+    private var touchCount = 0
+    private var lastTouchMs = Long.MIN_VALUE / 2
+
     private var quirk: Quirk? = null
     private var quirkUntilMs = -1L
     private var quirkStartMs = -1L
@@ -46,6 +51,22 @@ class MoodEngine(
         }
     }
 
+    fun onTouch(x: Float, y: Float, nowMs: Long) {
+        if (nowMs - lastTouchMs > TOUCH_WINDOW_MS) touchCount = 0
+        touchCount++
+        lastTouchMs = nowMs
+        val night = DayPeriod.of(hourOf(nowMs)) == DayPeriod.NOITE
+        val (expression, effect, caption) = when {
+            touchCount >= 5 -> Triple(Expression.DRAMATICO, Effect.SHAKE, "socorro!")
+            touchCount >= 3 -> Triple(Expression.BRAVO, Effect.SHAKE, "ei, para de me cutucar!")
+            touchCount == 2 -> Triple(Expression.COMEMORANDO, Effect.BOUNCE, "hehe, cócegas!")
+            night -> Triple(Expression.SONOLENTO, Effect.NONE, "hm? é de noite...")
+            else -> Triple(Expression.CURIOSO, Effect.BOUNCE, "oi!")
+        }
+        touchState = MoodState(expression, gazeX = x, gazeY = y, effect = effect, caption = caption, effectKey = nowMs)
+        touchUntilMs = nowMs + if (touchCount >= 3) 2_200 else 1_500
+    }
+
     fun state(problems: List<Problem>, nowMs: Long): MoodState {
         if (nextQuirkAtMs < 0) nextQuirkAtMs = nowMs + quirkGap(nowMs)
         if (nextBlinkAtMs < 0) nextBlinkAtMs = nowMs + 2_500 + random.nextInt(3_500)
@@ -53,6 +74,12 @@ class MoodEngine(
         if (nowMs < eventUntilMs) {
             postponeQuirk(nowMs)
             return MoodState(eventExpression, effect = eventEffect, caption = eventCaption, blink = blink(eventExpression, nowMs))
+        }
+
+        val touch = touchState
+        if (touch != null && nowMs < touchUntilMs) {
+            postponeQuirk(nowMs)
+            return touch.copy(blink = blink(touch.expression, nowMs))
         }
 
         val top = problems.firstOrNull()
@@ -186,5 +213,6 @@ class MoodEngine(
     private companion object {
         const val BLINK_MS = 120L
         const val GLANCE_MS = 2_400L
+        const val TOUCH_WINDOW_MS = 3_000L
     }
 }

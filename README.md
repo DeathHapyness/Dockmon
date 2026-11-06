@@ -2,6 +2,10 @@
 
 Um bichinho virtual que mora num Moto C Plus antigo e vigia o servidor de casa.
 
+<p align="center"><img src="docs/img/cocegas.png" width="640" alt="Zé Pingo sorrindo depois de levar cócegas"></p>
+
+> **Feito por IA.** Todo o código, os testes, os scripts e esta documentação foram escritos pelo Claude (Anthropic), via Claude Code, a partir das ideias e dos testes no aparelho do autor do projeto.
+
 O nome dele é **Zé Pingo**. Ele não come nem dorme por obrigação. Ele se assusta quando um container cai, comemora quando volta, solta fogos quando aparece container novo e fica bravo quando a CPU esquenta. Quando está tudo bem, olha para os lados, inclina a cabeça e às vezes fica apaixonado sem motivo nenhum.
 
 O celular vira um display dedicado: liga direto no Zé Pingo, sem launcher, barra de status ou tela de bloqueio.
@@ -16,6 +20,8 @@ Arrastando para os lados:
 
 Depois de 60 s sem toque, qualquer tela volta para o Zé Pingo.
 
+<p align="center"><img src="docs/img/painel.png" width="640" alt="Painel do servidor com medidores e lista de containers"></p>
+
 ## Humor
 
 **O que acontece no servidor:**
@@ -29,6 +35,20 @@ Depois de 60 s sem toque, qualquer tela volta para o Zé Pingo.
 | Disco cheio ou temperatura crítica | dramático |
 | Servidor sem resposta | fica procurando |
 | Tudo bem | manias aleatórias, olhos de coração de vez em quando |
+
+**Quando você toca nele** (ele olha para onde o dedo tocou):
+
+| Toques seguidos | Reação |
+|---|---|
+| 1 | "oi!" e um pulinho (à noite: "hm? é de noite...", com sono) |
+| 2 | "hehe, cócegas!" |
+| 3–4 | "ei, para de me cutucar!", bravo |
+| 5 ou mais | "socorro!", dramático |
+
+<p align="center">
+  <img src="docs/img/bravo.png" width="320" alt="Zé Pingo bravo">
+  <img src="docs/img/socorro.png" width="320" alt="Zé Pingo dramático">
+</p>
 
 **A hora do dia:**
 - **Manhã (6h–12h):** agitado, mexe toda hora e dá pulinhos.

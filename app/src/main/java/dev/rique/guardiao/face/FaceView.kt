@@ -1,5 +1,6 @@
 package dev.rique.guardiao.face
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -7,7 +8,9 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.os.SystemClock
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import dev.rique.guardiao.mood.Effect
 import dev.rique.guardiao.mood.Expression
 import dev.rique.guardiao.mood.MoodState
@@ -74,6 +77,28 @@ class FaceView(context: Context) : View(context) {
     private val nextFrame = Runnable { invalidate() }
     private var loveMix = 0f
 
+    var onTap: ((Float, Float) -> Unit)? = null
+    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+    private var downX = 0f
+    private var downY = 0f
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(ev: MotionEvent): Boolean {
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                downX = ev.x
+                downY = ev.y
+            }
+            MotionEvent.ACTION_UP -> if (abs(ev.x - downX) < touchSlop && abs(ev.y - downY) < touchSlop) {
+                onTap?.invoke(
+                    ((ev.x - width / 2f) / (width / 2f)).coerceIn(-1f, 1f),
+                    ((ev.y - height / 2f) / (height / 2f)).coerceIn(-1f, 1f),
+                )
+            }
+        }
+        return true
+    }
+
     fun update(next: MoodState) {
         if (next == state) return
         val now = SystemClock.uptimeMillis()
@@ -82,7 +107,7 @@ class FaceView(context: Context) : View(context) {
             toShape = EyeShapes.of(next.expression)
             shapeStartMs = now
         }
-        if (next.effect != Effect.NONE && next.effect != effect) {
+        if (next.effect != Effect.NONE && (next.effect != effect || next.effectKey != state.effectKey)) {
             effectStartMs = now
             if (next.effect == Effect.FIREWORKS) fireworks.start(now, width.toFloat(), height.toFloat())
         }

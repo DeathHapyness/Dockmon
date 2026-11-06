@@ -17,4 +17,5 @@ data class MoodState(
     val tilt: Float = 0f,
     val effect: Effect = Effect.NONE,
     val caption: String = "",
+    val effectKey: Long = 0,
 )

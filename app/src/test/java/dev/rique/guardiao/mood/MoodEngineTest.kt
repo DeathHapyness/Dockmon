@@ -216,4 +216,98 @@ class MoodEngineTest {
         assertEquals(DayPeriod.NOITE, DayPeriod.of(18))
         assertEquals(DayPeriod.NOITE, DayPeriod.of(0))
     }
+
+    private fun taps(e: MoodEngine, n: Int, start: Long = 1_000, gap: Long = 300): Long {
+        var t = start
+        repeat(n) {
+            e.onTouch(0.8f, -0.5f, t)
+            t += gap
+        }
+        return t - gap
+    }
+
+    @Test
+    fun tap_looks_at_finger_and_hops() {
+        val e = engine()
+        e.state(emptyList(), 0)
+        e.onTouch(0.8f, -0.5f, 1_000)
+        val s = e.state(emptyList(), 1_100)
+        assertEquals(Expression.CURIOSO, s.expression)
+        assertEquals(0.8f, s.gazeX, 0.001f)
+        assertEquals(-0.5f, s.gazeY, 0.001f)
+        assertEquals(Effect.BOUNCE, s.effect)
+        assertEquals("oi!", s.caption)
+    }
+
+    @Test
+    fun tap_reaction_wears_off() {
+        val e = engine()
+        e.onTouch(0.8f, -0.5f, 1_000)
+        val s = e.state(emptyList(), 2_700)
+        assertEquals(Expression.CONTENTE, s.expression)
+        assertEquals("tudo tranquilo", s.caption)
+    }
+
+    @Test
+    fun second_tap_tickles() {
+        val e = engine()
+        val t = taps(e, 2)
+        val s = e.state(emptyList(), t + 100)
+        assertEquals(Expression.COMEMORANDO, s.expression)
+        assertEquals("hehe, cócegas!", s.caption)
+    }
+
+    @Test
+    fun poking_makes_him_angry_then_dramatic() {
+        val e = engine()
+        val t3 = taps(e, 3)
+        val angry = e.state(emptyList(), t3 + 100)
+        assertEquals(Expression.BRAVO, angry.expression)
+        assertEquals(Effect.SHAKE, angry.effect)
+        assertEquals("ei, para de me cutucar!", angry.caption)
+        val t5 = taps(e, 2, t3 + 300)
+        val drama = e.state(emptyList(), t5 + 100)
+        assertEquals(Expression.DRAMATICO, drama.expression)
+        assertEquals("socorro!", drama.caption)
+    }
+
+    @Test
+    fun each_tap_restarts_its_effect() {
+        val e = engine()
+        val t3 = taps(e, 3)
+        val a = e.state(emptyList(), t3 + 100)
+        e.onTouch(0f, 0f, t3 + 300)
+        val b = e.state(emptyList(), t3 + 400)
+        assertTrue(a.effectKey != b.effectKey)
+    }
+
+    @Test
+    fun taps_count_resets_after_quiet() {
+        val e = engine()
+        val t = taps(e, 3)
+        e.onTouch(0f, 0f, t + 4_000)
+        assertEquals("oi!", e.state(emptyList(), t + 4_100).caption)
+    }
+
+    @Test
+    fun night_tap_is_sleepy() {
+        val e = engine(22)
+        e.onTouch(-0.6f, 0.2f, 1_000)
+        val s = e.state(emptyList(), 1_100)
+        assertEquals(Expression.SONOLENTO, s.expression)
+        assertEquals(-0.6f, s.gazeX, 0.001f)
+        assertEquals("hm? é de noite...", s.caption)
+    }
+
+    @Test
+    fun server_event_beats_tap_but_tap_beats_problem() {
+        val e = engine()
+        e.onEvents(listOf(ServerEvent.Down(listOf("nginx"))), 1_000)
+        e.onTouch(0f, 0f, 1_200)
+        assertEquals(Expression.ASSUSTADO, e.state(emptyList(), 1_300).expression)
+
+        val f = engine()
+        f.onTouch(0f, 0f, 1_000)
+        assertEquals(Expression.CURIOSO, f.state(listOf(Problem.CpuHigh(90.0)), 1_100).expression)
+    }
 }
