@@ -10,7 +10,9 @@ sealed class ServerEvent {
 }
 
 sealed class Problem(val severity: Int) {
+    data class PhoneHot(val celsius: Double) : Problem(70)
     data class TempCritical(val label: String, val celsius: Double) : Problem(60)
+    data class BatteryLow(val percent: Int) : Problem(if (percent <= 10) 55 else 35)
     data class ContainersDown(val names: List<String>) : Problem(50)
     data class DiskFull(val mount: String, val percent: Double) : Problem(40)
     data class TempWarning(val label: String, val celsius: Double) : Problem(30)

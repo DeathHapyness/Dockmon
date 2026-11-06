@@ -2,13 +2,17 @@ package dev.rique.guardiao
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
+import android.widget.FrameLayout
 import dev.rique.guardiao.face.FaceView
 import dev.rique.guardiao.kiosk.Kiosk
 import dev.rique.guardiao.mood.MoodEngine
@@ -22,6 +26,9 @@ import dev.rique.guardiao.settings.Settings
 import dev.rique.guardiao.settings.SettingsActivity
 import dev.rique.guardiao.panel.History
 import dev.rique.guardiao.panel.PanelView
+import dev.rique.guardiao.power.BatteryBadge
+import dev.rique.guardiao.power.PhoneBattery
+import dev.rique.guardiao.server.Problem
 import dev.rique.guardiao.ui.PagerLayout
 import dev.rique.guardiao.ui.Theme
 import dev.rique.guardiao.ui.Themes
@@ -50,11 +57,16 @@ class MainActivity : Activity() {
     private val mood = MoodEngine(Random())
     private var lastTouchMs = 0L
     private var musicSinceMs = 0L
+    private lateinit var badge: BatteryBadge
+    private var battery: PhoneBattery? = null
+    private val batteryReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) = onBattery(PhoneBattery.from(intent))
+    }
 
     private val tick = object : Runnable {
         override fun run() {
             val now = System.currentTimeMillis()
-            face.update(mood.state(detector.problems(now), now))
+            face.update(mood.state(problems(now), now))
             if (pages.page != PAGE_FACE && now - lastTouchMs > RETURN_MS) pages.showPage(PAGE_FACE)
             handler.postDelayed(this, 100)
         }
@@ -72,7 +84,7 @@ class MainActivity : Activity() {
         face.onTap = { x, y ->
             val now = System.currentTimeMillis()
             mood.onTouch(x, y, now)
-            face.update(mood.state(detector.problems(now), now))
+            face.update(mood.state(problems(now), now))
         }
         music = MusicView(this)
         musicPoller = MusicPoller(settings) { r, cover ->
@@ -100,7 +112,11 @@ class MainActivity : Activity() {
             }
         }
         readToken(intent)
-        setContentView(pages)
+        badge = BatteryBadge(this)
+        setContentView(FrameLayout(this).apply {
+            addView(pages)
+            addView(badge)
+        })
 
         poller = ServerPoller(settings, detector) { events, snapshot ->
             if (events.isNotEmpty()) mood.onEvents(events, System.currentTimeMillis())
@@ -112,13 +128,14 @@ class MainActivity : Activity() {
     override fun onStart() {
         super.onStart()
         poller.start()
+        onBattery(registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))?.let(PhoneBattery::from))
         if (pages.page == PAGE_MUSIC) startMusic()
         handler.post(tick)
     }
 
     override fun onResume() {
         super.onResume()
-        Kiosk.apply(this, settings.brightness)
+        Kiosk.apply(this, brightness())
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -137,6 +154,19 @@ class MainActivity : Activity() {
         handler.removeCallbacks(barsFrame)
     }
 
+    private fun problems(now: Long): List<Problem> =
+        (battery?.problems().orEmpty() + detector.problems(now)).sortedByDescending { it.severity }
+
+    private fun brightness() =
+        if (battery?.hot == true) minOf(settings.brightness, PhoneBattery.COOL_DOWN_BRIGHTNESS) else settings.brightness
+
+    private fun onBattery(b: PhoneBattery?) {
+        val wasHot = battery?.hot == true
+        battery = b
+        badge.battery = b
+        if ((b?.hot == true) != wasHot) Kiosk.apply(this, brightness())
+    }
+
     private fun applyTheme(t: Theme) {
         face.theme = t
         music.theme = t
@@ -148,6 +178,7 @@ class MainActivity : Activity() {
     }
 
     override fun onStop() {
+        runCatching { unregisterReceiver(batteryReceiver) }
         poller.stop()
         stopMusic()
         handler.removeCallbacks(tick)
@@ -157,7 +188,7 @@ class MainActivity : Activity() {
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) Kiosk.apply(this, settings.brightness)
+        if (hasFocus) Kiosk.apply(this, brightness())
     }
 
     @Deprecated("Back does nothing on a dedicated device")

@@ -246,7 +246,7 @@ class MoodEngineTest {
         assertEquals(0.8f, s.gazeX, 0.001f)
         assertEquals(-0.5f, s.gazeY, 0.001f)
         assertEquals(Effect.BOUNCE, s.effect)
-        assertEquals("", s.caption)
+        assertEquals("oi, chefe!", s.caption)
     }
 
     @Test
@@ -264,7 +264,7 @@ class MoodEngineTest {
         val t = taps(e, 2)
         val s = e.state(emptyList(), t + 100)
         assertEquals(Expression.COMEMORANDO, s.expression)
-        assertEquals("", s.caption)
+        assertEquals("hehe, em serviço não!", s.caption)
     }
 
     @Test
@@ -274,11 +274,11 @@ class MoodEngineTest {
         val angry = e.state(emptyList(), t3 + 100)
         assertEquals(Expression.BRAVO, angry.expression)
         assertEquals(Effect.SHAKE, angry.effect)
-        assertEquals("", angry.caption)
+        assertEquals("ei, tô trabalhando!", angry.caption)
         val t5 = taps(e, 2, t3 + 300)
         val drama = e.state(emptyList(), t5 + 100)
         assertEquals(Expression.DRAMATICO, drama.expression)
-        assertEquals("", drama.caption)
+        assertEquals("socorro, tô em serviço!", drama.caption)
     }
 
     @Test
@@ -306,7 +306,7 @@ class MoodEngineTest {
         val s = e.state(emptyList(), 1_100)
         assertEquals(Expression.SONOLENTO, s.expression)
         assertEquals(-0.6f, s.gazeX, 0.001f)
-        assertEquals("", s.caption)
+        assertEquals("hm? tô de plantão...", s.caption)
     }
 
     @Test
@@ -354,5 +354,18 @@ class MoodEngineTest {
         e.onBackFromMusic(40_000, 1_000)
         e.onTouch(0f, 0f, 2_000)
         assertEquals(Expression.CURIOSO, e.state(emptyList(), 2_100).expression)
+    }
+
+    @Test
+    fun phone_battery_speaks() {
+        val low = engine().state(listOf(Problem.BatteryLow(15)), 0)
+        assertEquals(Expression.PREOCUPADO, low.expression)
+        assertEquals("bateria em 15%, preciso de tomada!", low.caption)
+        val dying = engine().state(listOf(Problem.BatteryLow(7)), 0)
+        assertEquals(Expression.SONOLENTO, dying.expression)
+        assertEquals("bateria em 7%, vou apagar no turno!", dying.caption)
+        val hot = engine().state(listOf(Problem.PhoneHot(46.4)), 0)
+        assertEquals(Expression.DRAMATICO, hot.expression)
+        assertEquals("tô a 46 °C, superaquecendo!", hot.caption)
     }
 }

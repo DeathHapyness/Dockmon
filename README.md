@@ -36,16 +36,16 @@ Depois de 60 s sem toque, qualquer tela volta para o Clanker.
 | Servidor sem resposta | fica procurando |
 | Tudo bem | manias aleatórias, olhos de coração de vez em quando |
 
-Ele só fala quando acontece algo com um container ou com o hardware, ou quando fica com ciúme ("PERDI O nginx!", "CPU em 93%, aguenta firme!"). No resto do tempo, só faz caras.
+Ele fala quando acontece algo com um container ou com o hardware, quando você toca nele ou quando fica com ciúme ("PERDI O nginx!", "CPU em 93%, aguenta firme!"). No resto do tempo, só faz caras.
 
 **Quando você toca nele** (ele olha para onde o dedo tocou):
 
 | Toques seguidos | Reação |
 |---|---|
-| 1 | um pulinho, curioso (à noite: sonolento) |
-| 2 | ri de cócegas |
-| 3–4 | fica bravo e treme |
-| 5 ou mais | dramático |
+| 1 | "oi, chefe!" e um pulinho (à noite: "hm? tô de plantão...", com sono) |
+| 2 | "hehe, em serviço não!", com cócegas |
+| 3–4 | "ei, tô trabalhando!", bravo |
+| 5 ou mais | "socorro, tô em serviço!", dramático |
 
 <p align="center">
   <img src="docs/img/bravo.png" width="320" alt="Clanker bravo">
@@ -53,6 +53,8 @@ Ele só fala quando acontece algo com um container ou com o hardware, ou quando 
 </p>
 
 **Ciúme da música:** se você passa mais de 30 s na tela de música, ele volta emburrado, olhando para o outro lado: "hmpf... trocou o segurança pela música". Depois de 3 min, fica dramático: "achei que tinha sido demitido!". Um toque nele desfaz o bico.
+
+**A bateria do celular:** um ícone aparece no canto superior direito, em qualquer tela, quando a bateria está em 20% ou menos fora da tomada (âmbar; pisca em vermelho a partir de 10%) ou quando a bateria passa de 45 °C (pisca em vermelho e mostra a temperatura). Ele também avisa: "bateria em 15%, preciso de tomada!", "bateria em 7%, vou apagar no turno!", "tô a 46 °C, superaquecendo!". Quando esquenta, o brilho cai para 5% até esfriar.
 
 **A hora do dia:**
 - **Manhã (6h–12h):** agitado, mexe toda hora e dá pulinhos.

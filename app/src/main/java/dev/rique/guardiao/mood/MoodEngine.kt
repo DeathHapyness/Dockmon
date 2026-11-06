@@ -56,14 +56,14 @@ class MoodEngine(
         touchCount++
         lastTouchMs = nowMs
         val night = DayPeriod.of(hourOf(nowMs)) == DayPeriod.NOITE
-        val (expression, effect) = when {
-            touchCount >= 5 -> Expression.DRAMATICO to Effect.SHAKE
-            touchCount >= 3 -> Expression.BRAVO to Effect.SHAKE
-            touchCount == 2 -> Expression.COMEMORANDO to Effect.BOUNCE
-            night -> Expression.SONOLENTO to Effect.NONE
-            else -> Expression.CURIOSO to Effect.BOUNCE
+        val (expression, effect, caption) = when {
+            touchCount >= 5 -> Triple(Expression.DRAMATICO, Effect.SHAKE, "socorro, tô em serviço!")
+            touchCount >= 3 -> Triple(Expression.BRAVO, Effect.SHAKE, "ei, tô trabalhando!")
+            touchCount == 2 -> Triple(Expression.COMEMORANDO, Effect.BOUNCE, "hehe, em serviço não!")
+            night -> Triple(Expression.SONOLENTO, Effect.NONE, "hm? tô de plantão...")
+            else -> Triple(Expression.CURIOSO, Effect.BOUNCE, "oi, chefe!")
         }
-        touchState = MoodState(expression, gazeX = x, gazeY = y, effect = effect, effectKey = nowMs)
+        touchState = MoodState(expression, gazeX = x, gazeY = y, effect = effect, caption = caption, effectKey = nowMs)
         touchUntilMs = nowMs + if (touchCount >= 3) 2_200 else 1_500
     }
 
@@ -200,6 +200,8 @@ class MoodEngine(
     }
 
     private fun expressionFor(p: Problem) = when (p) {
+        is Problem.PhoneHot -> Expression.DRAMATICO
+        is Problem.BatteryLow -> if (p.percent <= 10) Expression.SONOLENTO else Expression.PREOCUPADO
         is Problem.TempCritical, is Problem.DiskFull -> Expression.DRAMATICO
         is Problem.ContainersDown, is Problem.Unhealthy -> Expression.PREOCUPADO
         is Problem.TempWarning, is Problem.CpuHigh -> Expression.BRAVO
@@ -207,6 +209,10 @@ class MoodEngine(
     }
 
     private fun captionFor(p: Problem) = when (p) {
+        is Problem.PhoneHot -> "tô a ${p.celsius.roundToInt()} °C, superaquecendo!"
+        is Problem.BatteryLow ->
+            if (p.percent <= 10) "bateria em ${p.percent}%, vou apagar no turno!"
+            else "bateria em ${p.percent}%, preciso de tomada!"
         is Problem.TempCritical -> "${p.label} a ${p.celsius.roundToInt()} °C, tá pegando fogo!"
         is Problem.TempWarning -> "${p.label} a ${p.celsius.roundToInt()} °C, tô de olho"
         is Problem.DiskFull -> "disco ${p.mount} em ${p.percent.roundToInt()}%, não cabe mais ninguém!"
