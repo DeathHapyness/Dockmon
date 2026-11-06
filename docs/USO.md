@@ -11,7 +11,7 @@ O Moto C Plus funciona como um display dedicado. O rosto reage ao servidor pelo 
   - CPU alta, disco cheio ou temperatura alta: fica bravo ou dramático;
   - servidor sem resposta: fica procurando;
   - tudo bem: tem manias aleatórias, incluindo os olhos de coração.
-- **Arrastar para a esquerda:** tela de música com capa e botões ⏮ ⏯ ⏭. As barras reagem ao som do ambiente pelo microfone. Depois de 60 s sem toque, volta para o rosto.
+- **Arrastar para a esquerda:** tela de música com capa e botões ⏮ ⏯ ⏭. As barras estilo cava simulam um ritmo próprio de cada música enquanto ela toca e param no pause. Elas não seguem a batida real, porque o áudio fica no fone do PC. Depois de 60 s sem toque, volta para o rosto.
 - **Configurações escondidas:** segure o **canto superior esquerdo por 5 s**. Ali ficam a URL do Glances, os limites de CPU, disco e temperatura, o brilho e o botão "Sair do modo kiosk".
 
 ## Pelo PC (com o celular no USB)
@@ -33,4 +33,4 @@ O app de desenvolvedor do Spotify precisa ter `http://127.0.0.1:8888/callback` c
 
 - O logo e a animação de boot da Motorola continuam aparecendo, porque o bootloader está bloqueado.
 - O Glances roda em container, então só enxerga o disco do sistema. Para ver outros discos, monte `-v /:/rootfs:ro` nele.
-- As barras usam o microfone. Com fone de ouvido, elas ficam no modo decorativo.
+- As barras são simuladas: o Spotify não fornece mais a análise de batida para apps novos e o celular não ouve o fone.

@@ -1,6 +1,5 @@
 package dev.rique.guardiao.kiosk
 
-import android.Manifest
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.admin.DevicePolicyManager
@@ -38,10 +37,6 @@ object Kiosk {
         dpm.setGlobalSetting(
             admin, Settings.Global.STAY_ON_WHILE_PLUGGED_IN,
             (BatteryManager.BATTERY_PLUGGED_AC or BatteryManager.BATTERY_PLUGGED_USB or BatteryManager.BATTERY_PLUGGED_WIRELESS).toString(),
-        )
-        dpm.setPermissionGrantState(
-            admin, activity.packageName, Manifest.permission.RECORD_AUDIO,
-            DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED,
         )
         val home = IntentFilter(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_HOME)

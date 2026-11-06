@@ -32,7 +32,7 @@ class MusicView(context: Context) : View(context) {
     private val dp = resources.displayMetrics.density
     private fun sp(v: Float) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, v, resources.displayMetrics)
 
-    private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x2EFFFFFF }
+    private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x33FFFFFF }
     private val placeholder = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFF16161B.toInt() }
     private val coverPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     private val titlePaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFFFFFFFF.toInt(); textSize = sp(22f); isFakeBoldText = true }
@@ -58,7 +58,6 @@ class MusicView(context: Context) : View(context) {
         val w = width.toFloat()
         val h = height.toFloat()
         canvas.drawColor(background)
-        drawBars(canvas, w, h)
 
         val size = min(h * 0.62f, 300 * dp)
         val left = w * 0.12f
@@ -90,6 +89,7 @@ class MusicView(context: Context) : View(context) {
             if (i == 1) canvas.drawCircle(cx, cy, btn / 2, ringPaint)
             drawIcon(canvas, i, cx, cy, btn * 0.22f, playing)
         }
+        drawBars(canvas, w, h)
     }
 
     private fun texts(): Pair<String, String> = when (val r = result) {

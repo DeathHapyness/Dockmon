@@ -6,12 +6,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import dev.rique.guardiao.face.FaceView
 import dev.rique.guardiao.kiosk.Kiosk
 import dev.rique.guardiao.mood.MoodEngine
-import dev.rique.guardiao.music.MicCapture
+import dev.rique.guardiao.music.PlayResult
+import dev.rique.guardiao.music.Rhythm
 import dev.rique.guardiao.music.MusicPoller
 import dev.rique.guardiao.music.MusicView
 import dev.rique.guardiao.server.EventDetector
@@ -29,7 +31,15 @@ class MainActivity : Activity() {
     private lateinit var poller: ServerPoller
     private lateinit var music: MusicView
     private lateinit var musicPoller: MusicPoller
-    private lateinit var mic: MicCapture
+    private val rhythm = Rhythm()
+    private var nowPlaying: PlayResult = PlayResult.Nothing
+    private val barsFrame = object : Runnable {
+        override fun run() {
+            val np = (nowPlaying as? PlayResult.Playing)?.np
+            music.bars = rhythm.frame(SystemClock.uptimeMillis(), np?.isPlaying == true, np?.title.orEmpty())
+            handler.postDelayed(this, 33)
+        }
+    }
     private val detector = EventDetector()
     private val mood = MoodEngine(Random())
     private var lastTouchMs = 0L
@@ -53,9 +63,11 @@ class MainActivity : Activity() {
 
         face = FaceView(this)
         music = MusicView(this)
-        musicPoller = MusicPoller(settings) { r, cover -> music.show(r, cover) }
+        musicPoller = MusicPoller(settings) { r, cover ->
+            nowPlaying = r
+            music.show(r, cover)
+        }
         music.onControl = { musicPoller.control(it) }
-        mic = MicCapture { music.bars = it }
         pages = TwoPageLayout(this, face, music)
         pages.onPageChanged = { page ->
             lastTouchMs = System.currentTimeMillis()
@@ -88,12 +100,13 @@ class MainActivity : Activity() {
 
     private fun startMusic() {
         musicPoller.start()
-        mic.start()
+        handler.removeCallbacks(barsFrame)
+        handler.post(barsFrame)
     }
 
     private fun stopMusic() {
         musicPoller.stop()
-        mic.stop()
+        handler.removeCallbacks(barsFrame)
     }
 
     private fun readToken(intent: Intent?) {
