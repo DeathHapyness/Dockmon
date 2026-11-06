@@ -17,9 +17,8 @@ import android.widget.TextView
 import dev.rique.guardiao.kiosk.Kiosk
 
 class SettingsActivity : Activity() {
-    lateinit var settings: Settings
-    lateinit var spotifyButton: Button
-    lateinit var exitKioskButton: Button
+    private lateinit var settings: Settings
+    private lateinit var exitKioskButton: Button
 
     private lateinit var url: EditText
     private lateinit var cpu: EditText
@@ -51,8 +50,6 @@ class SettingsActivity : Activity() {
         column.addView(brightness)
 
         column.addView(button("Salvar") { save(); finish() })
-        spotifyButton = button("Conectar Spotify") {}.apply { isEnabled = false }
-        column.addView(spotifyButton)
         exitKioskButton = button("Sair do modo kiosk") { Kiosk.exit(this); finish() }
         column.addView(exitKioskButton)
         column.addView(button("Voltar") { finish() })

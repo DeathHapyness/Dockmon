@@ -3,7 +3,6 @@ package dev.rique.guardiao
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -12,6 +11,9 @@ import android.view.View
 import dev.rique.guardiao.face.FaceView
 import dev.rique.guardiao.kiosk.Kiosk
 import dev.rique.guardiao.mood.MoodEngine
+import dev.rique.guardiao.music.MicCapture
+import dev.rique.guardiao.music.MusicPoller
+import dev.rique.guardiao.music.MusicView
 import dev.rique.guardiao.server.EventDetector
 import dev.rique.guardiao.server.ServerPoller
 import dev.rique.guardiao.settings.Settings
@@ -25,6 +27,9 @@ class MainActivity : Activity() {
     private lateinit var face: FaceView
     private lateinit var pages: TwoPageLayout
     private lateinit var poller: ServerPoller
+    private lateinit var music: MusicView
+    private lateinit var musicPoller: MusicPoller
+    private lateinit var mic: MicCapture
     private val detector = EventDetector()
     private val mood = MoodEngine(Random())
     private var lastTouchMs = 0L
@@ -47,9 +52,16 @@ class MainActivity : Activity() {
         detector.thresholds = settings.thresholds()
 
         face = FaceView(this)
-        val music = View(this).apply { setBackgroundColor(Color.parseColor("#07070A")) }
+        music = MusicView(this)
+        musicPoller = MusicPoller(settings) { r, cover -> music.show(r, cover) }
+        music.onControl = { musicPoller.control(it) }
+        mic = MicCapture { music.bars = it }
         pages = TwoPageLayout(this, face, music)
-        pages.onPageChanged = { lastTouchMs = System.currentTimeMillis() }
+        pages.onPageChanged = { page ->
+            lastTouchMs = System.currentTimeMillis()
+            if (page == 1) startMusic() else stopMusic()
+        }
+        readToken(intent)
         setContentView(pages)
 
         poller = ServerPoller(settings, detector) { events ->
@@ -60,6 +72,7 @@ class MainActivity : Activity() {
     override fun onStart() {
         super.onStart()
         poller.start()
+        if (pages.page == 1) startMusic()
         handler.post(tick)
     }
 
@@ -68,8 +81,28 @@ class MainActivity : Activity() {
         Kiosk.apply(this, settings.brightness)
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        readToken(intent)
+    }
+
+    private fun startMusic() {
+        musicPoller.start()
+        mic.start()
+    }
+
+    private fun stopMusic() {
+        musicPoller.stop()
+        mic.stop()
+    }
+
+    private fun readToken(intent: Intent?) {
+        intent?.getStringExtra(EXTRA_REFRESH_TOKEN)?.let { settings.spotifyRefreshToken = it }
+    }
+
     override fun onStop() {
         poller.stop()
+        stopMusic()
         handler.removeCallbacks(tick)
         handler.removeCallbacks(openSettings)
         super.onStop()
@@ -98,6 +131,7 @@ class MainActivity : Activity() {
 
     private companion object {
         const val MUSIC_TIMEOUT_MS = 60_000L
+        const val EXTRA_REFRESH_TOKEN = "spotifyRefreshToken"
         const val CORNER_PX = 120f
         const val CORNER_HOLD_MS = 5_000L
     }

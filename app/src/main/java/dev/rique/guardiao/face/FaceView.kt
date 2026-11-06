@@ -66,9 +66,11 @@ class FaceView(context: Context) : View(context) {
     private var effectStartMs = 0L
     private var lastFrameMs = 0L
     private var scaredMix = 0f
+    private val nextFrame = Runnable { invalidate() }
     private var loveMix = 0f
 
     fun update(next: MoodState) {
+        if (next == state) return
         val now = SystemClock.uptimeMillis()
         if (next.expression != state.expression) {
             fromShape = currentShape(now)
@@ -172,9 +174,11 @@ class FaceView(context: Context) : View(context) {
             fireworks.draw(canvas, u * 0.008f)
         }
 
-        val calm = state.expression == Expression.CALMO || state.expression == Expression.SONOLENTO
-        val busy = scared || love || fireworks.active || now - shapeStartMs < TRANSITION_MS + 300 || effectAge < 1000
-        postInvalidateDelayed(if (calm && !busy) 66L else 33L)
+        val moving = abs(state.gazeX - gazeX) > 0.002f || abs(state.gazeY - gazeY) > 0.002f ||
+            abs(state.offsetX - offX) > 0.002f || abs(state.offsetY - offY) > 0.002f || abs(state.tilt - tilt) > 0.05f
+        val busy = scared || love || moving || fireworks.active || now - shapeStartMs < TRANSITION_MS + 100 || effectAge < 1000
+        removeCallbacks(nextFrame)
+        postDelayed(nextFrame, if (busy) 33L else 66L)
     }
 
     private fun drawEye(canvas: Canvas, x: Float, y: Float, ew: Float, eh: Float, s: EyeShape, leftEye: Boolean, scared: Boolean, u: Float) {

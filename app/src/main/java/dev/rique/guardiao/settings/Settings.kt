@@ -25,7 +25,7 @@ class Settings(private val prefs: SharedPreferences) {
         set(v) = prefs.edit().putFloat("brightness", v).apply()
 
     var spotifyClientId: String?
-        get() = prefs.getString("spotifyClientId", null)
+        get() = prefs.getString("spotifyClientId", null) ?: "fd9157f81f6f4468b6e5b6875418abf5"
         set(v) = prefs.edit().putString("spotifyClientId", v).apply()
 
     var spotifyRefreshToken: String?

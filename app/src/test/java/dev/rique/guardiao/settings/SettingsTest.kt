@@ -15,7 +15,7 @@ class SettingsTest {
         assertEquals(90.0, s.diskPercent, 0.0)
         assertEquals(80.0, s.defaultTempC, 0.0)
         assertEquals(0.15f, s.brightness, 0f)
-        assertNull(s.spotifyClientId)
+        assertEquals("fd9157f81f6f4468b6e5b6875418abf5", s.spotifyClientId)
         assertNull(s.spotifyRefreshToken)
         assertNull(s.detectorState)
         assertEquals(Thresholds(85.0, 60_000, 90.0, 80.0), s.thresholds())
