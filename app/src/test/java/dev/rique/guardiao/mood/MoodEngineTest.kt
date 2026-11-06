@@ -14,7 +14,7 @@ class MoodEngineTest {
     fun idle_is_contente_with_caption() {
         val s = engine().state(emptyList(), 0)
         assertEquals(Expression.CONTENTE, s.expression)
-        assertEquals("tudo sob controle", s.caption)
+        assertEquals("", s.caption)
     }
 
     @Test
@@ -64,10 +64,10 @@ class MoodEngineTest {
     }
 
     @Test
-    fun idle_caption_follows_the_shift() {
-        assertEquals("tudo sob controle", engine(9).state(emptyList(), 0).caption)
-        assertEquals("ninguém cai no meu turno", engine(15).state(emptyList(), 0).caption)
-        assertEquals("vigiando enquanto você dorme", engine(2).state(emptyList(), 0).caption)
+    fun idle_has_no_caption_any_time() {
+        assertEquals("", engine(9).state(emptyList(), 0).caption)
+        assertEquals("", engine(15).state(emptyList(), 0).caption)
+        assertEquals("", engine(2).state(emptyList(), 0).caption)
     }
 
     @Test
@@ -207,7 +207,7 @@ class MoodEngineTest {
     fun night_rests_calm() {
         val s = engine(22).state(emptyList(), 0)
         assertEquals(Expression.CALMO, s.expression)
-        assertEquals("vigiando enquanto você dorme", s.caption)
+        assertEquals("", s.caption)
         assertTrue(idleRun(22).count { it.expression == Expression.CALMO } > idleRun(22).size / 2)
     }
 
@@ -246,7 +246,7 @@ class MoodEngineTest {
         assertEquals(0.8f, s.gazeX, 0.001f)
         assertEquals(-0.5f, s.gazeY, 0.001f)
         assertEquals(Effect.BOUNCE, s.effect)
-        assertEquals("oi, chefe!", s.caption)
+        assertEquals("", s.caption)
     }
 
     @Test
@@ -255,7 +255,7 @@ class MoodEngineTest {
         e.onTouch(0.8f, -0.5f, 1_000)
         val s = e.state(emptyList(), 2_700)
         assertEquals(Expression.CONTENTE, s.expression)
-        assertEquals("tudo sob controle", s.caption)
+        assertEquals(0f, s.gazeX, 0f)
     }
 
     @Test
@@ -264,7 +264,7 @@ class MoodEngineTest {
         val t = taps(e, 2)
         val s = e.state(emptyList(), t + 100)
         assertEquals(Expression.COMEMORANDO, s.expression)
-        assertEquals("hehe, em serviço não!", s.caption)
+        assertEquals("", s.caption)
     }
 
     @Test
@@ -274,11 +274,11 @@ class MoodEngineTest {
         val angry = e.state(emptyList(), t3 + 100)
         assertEquals(Expression.BRAVO, angry.expression)
         assertEquals(Effect.SHAKE, angry.effect)
-        assertEquals("ei, tô trabalhando!", angry.caption)
+        assertEquals("", angry.caption)
         val t5 = taps(e, 2, t3 + 300)
         val drama = e.state(emptyList(), t5 + 100)
         assertEquals(Expression.DRAMATICO, drama.expression)
-        assertEquals("socorro, tô em serviço!", drama.caption)
+        assertEquals("", drama.caption)
     }
 
     @Test
@@ -296,7 +296,7 @@ class MoodEngineTest {
         val e = engine()
         val t = taps(e, 3)
         e.onTouch(0f, 0f, t + 4_000)
-        assertEquals("oi, chefe!", e.state(emptyList(), t + 4_100).caption)
+        assertEquals(Expression.CURIOSO, e.state(emptyList(), t + 4_100).expression)
     }
 
     @Test
@@ -306,7 +306,7 @@ class MoodEngineTest {
         val s = e.state(emptyList(), 1_100)
         assertEquals(Expression.SONOLENTO, s.expression)
         assertEquals(-0.6f, s.gazeX, 0.001f)
-        assertEquals("hm? tô de plantão...", s.caption)
+        assertEquals("", s.caption)
     }
 
     @Test
@@ -325,7 +325,7 @@ class MoodEngineTest {
     fun short_music_visit_is_fine() {
         val e = engine()
         e.onBackFromMusic(10_000, 1_000)
-        assertEquals("tudo sob controle", e.state(emptyList(), 1_100).caption)
+        assertEquals(Expression.CONTENTE, e.state(emptyList(), 1_100).expression)
     }
 
     @Test
@@ -334,9 +334,9 @@ class MoodEngineTest {
         e.onBackFromMusic(40_000, 1_000)
         val s = e.state(emptyList(), 1_100)
         assertEquals(Expression.BRAVO, s.expression)
-        assertEquals("hmpf... trocou o segurança pela música", s.caption)
+        assertEquals("", s.caption)
         assertTrue(s.gazeX < -0.5f)
-        assertEquals("tudo sob controle", e.state(emptyList(), 5_200).caption)
+        assertTrue(e.state(emptyList(), 5_200).expression != Expression.BRAVO)
     }
 
     @Test
@@ -345,7 +345,7 @@ class MoodEngineTest {
         e.onBackFromMusic(200_000, 1_000)
         val s = e.state(emptyList(), 1_100)
         assertEquals(Expression.DRAMATICO, s.expression)
-        assertEquals("achei que tinha sido demitido!", s.caption)
+        assertEquals("", s.caption)
     }
 
     @Test
@@ -353,6 +353,6 @@ class MoodEngineTest {
         val e = engine()
         e.onBackFromMusic(40_000, 1_000)
         e.onTouch(0f, 0f, 2_000)
-        assertEquals("oi, chefe!", e.state(emptyList(), 2_100).caption)
+        assertEquals(Expression.CURIOSO, e.state(emptyList(), 2_100).expression)
     }
 }

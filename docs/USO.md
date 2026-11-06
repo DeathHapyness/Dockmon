@@ -11,7 +11,7 @@ O Moto C Plus funciona como um display dedicado. São três telas: o painel do s
   - CPU alta, disco cheio ou temperatura alta: fica bravo ou dramático;
   - servidor sem resposta: fica procurando;
   - tudo bem: tem manias aleatórias, incluindo os olhos de coração.
-  - Tocar nele: olha para o dedo e diz "oi, chefe!". Dois toques são cócegas; de 3 em diante ele fica bravo e, a partir de 5, dramático. Depois de 3 s sem toque ele esquece.
+  - Tocar nele: olha para o dedo e dá um pulinho. Dois toques são cócegas; de 3 em diante ele fica bravo e, a partir de 5, dramático. Depois de 3 s sem toque ele esquece.
   - Ciúme: depois de mais de 30 s na tela de música, ele volta emburrado; depois de 3 min, dramático.
   - O humor muda com a hora:
     - manhã (6h–12h): agitado, mexe muito e dá pulinhos;

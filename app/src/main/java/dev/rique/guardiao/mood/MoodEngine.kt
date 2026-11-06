@@ -56,24 +56,24 @@ class MoodEngine(
         touchCount++
         lastTouchMs = nowMs
         val night = DayPeriod.of(hourOf(nowMs)) == DayPeriod.NOITE
-        val (expression, effect, caption) = when {
-            touchCount >= 5 -> Triple(Expression.DRAMATICO, Effect.SHAKE, "socorro, tô em serviço!")
-            touchCount >= 3 -> Triple(Expression.BRAVO, Effect.SHAKE, "ei, tô trabalhando!")
-            touchCount == 2 -> Triple(Expression.COMEMORANDO, Effect.BOUNCE, "hehe, em serviço não!")
-            night -> Triple(Expression.SONOLENTO, Effect.NONE, "hm? tô de plantão...")
-            else -> Triple(Expression.CURIOSO, Effect.BOUNCE, "oi, chefe!")
+        val (expression, effect) = when {
+            touchCount >= 5 -> Expression.DRAMATICO to Effect.SHAKE
+            touchCount >= 3 -> Expression.BRAVO to Effect.SHAKE
+            touchCount == 2 -> Expression.COMEMORANDO to Effect.BOUNCE
+            night -> Expression.SONOLENTO to Effect.NONE
+            else -> Expression.CURIOSO to Effect.BOUNCE
         }
-        touchState = MoodState(expression, gazeX = x, gazeY = y, effect = effect, caption = caption, effectKey = nowMs)
+        touchState = MoodState(expression, gazeX = x, gazeY = y, effect = effect, effectKey = nowMs)
         touchUntilMs = nowMs + if (touchCount >= 3) 2_200 else 1_500
     }
 
     fun onBackFromMusic(stayedMs: Long, nowMs: Long) {
-        val (expression, caption) = when {
-            stayedMs >= 180_000 -> Expression.DRAMATICO to "achei que tinha sido demitido!"
-            stayedMs >= 30_000 -> Expression.BRAVO to "hmpf... trocou o segurança pela música"
+        val expression = when {
+            stayedMs >= 180_000 -> Expression.DRAMATICO
+            stayedMs >= 30_000 -> Expression.BRAVO
             else -> return
         }
-        touchState = MoodState(expression, gazeX = -0.9f, gazeY = 0.3f, caption = caption)
+        touchState = MoodState(expression, gazeX = -0.9f, gazeY = 0.3f)
         touchUntilMs = nowMs + 4_000
     }
 
@@ -109,11 +109,6 @@ class MoodEngine(
             offsetX = q?.offsetX ?: 0f,
             tilt = q?.tilt ?: 0f,
             effect = q?.effect ?: Effect.NONE,
-            caption = when (DayPeriod.of(hourOf(nowMs))) {
-                DayPeriod.MANHA -> "tudo sob controle"
-                DayPeriod.TARDE -> "ninguém cai no meu turno"
-                DayPeriod.NOITE -> "vigiando enquanto você dorme"
-            },
             blink = blink(expression, nowMs),
         )
     }
