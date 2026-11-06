@@ -2,23 +2,23 @@
 
 Um bichinho virtual que mora num Moto C Plus antigo e vigia o servidor de casa.
 
-<p align="center"><img src="docs/img/cocegas.png" width="640" alt="Zé Pingo sorrindo depois de levar cócegas"></p>
+<p align="center"><img src="docs/img/cocegas.png" width="640" alt="Clanker sorrindo depois de levar cócegas"></p>
 
 > **Feito por IA.** Todo o código, os testes, os scripts e esta documentação foram escritos pelo Claude (Anthropic), via Claude Code, a partir das ideias e dos testes no aparelho do autor do projeto.
 
-O nome dele é **Zé Pingo**. Ele não come nem dorme por obrigação. Ele se assusta quando um container cai, comemora quando volta, solta fogos quando aparece container novo e fica bravo quando a CPU esquenta. Quando está tudo bem, olha para os lados, inclina a cabeça e às vezes fica apaixonado sem motivo nenhum.
+O nome dele é **Clanker**. Ele não come nem dorme por obrigação. Ele se assusta quando um container cai, comemora quando volta, solta fogos quando aparece container novo e fica bravo quando a CPU esquenta. Quando está tudo bem, olha para os lados, inclina a cabeça e às vezes fica apaixonado sem motivo nenhum.
 
-O celular vira um display dedicado: liga direto no Zé Pingo, sem launcher, barra de status ou tela de bloqueio.
+O celular vira um display dedicado: liga direto no Clanker, sem launcher, barra de status ou tela de bloqueio.
 
 ## As três telas
 
 Arrastando para os lados:
 
-| ← Painel | Zé Pingo (início) | Música → |
+| ← Painel | Clanker (início) | Música → |
 |---|---|---|
 | CPU, RAM, disco e temperatura, gráfico da CPU na última hora, tempo ligado, lista dos containers com os problemáticos primeiro, escolha de tema | o rosto, que reage ao servidor e à hora do dia | o que toca no Spotify: capa, ⏮ ⏯ ⏭ e barras estilo cava |
 
-Depois de 60 s sem toque, qualquer tela volta para o Zé Pingo.
+Depois de 60 s sem toque, qualquer tela volta para o Clanker.
 
 <p align="center"><img src="docs/img/painel.png" width="640" alt="Painel do servidor com medidores e lista de containers"></p>
 
@@ -46,8 +46,8 @@ Depois de 60 s sem toque, qualquer tela volta para o Zé Pingo.
 | 5 ou mais | "socorro!", dramático |
 
 <p align="center">
-  <img src="docs/img/bravo.png" width="320" alt="Zé Pingo bravo">
-  <img src="docs/img/socorro.png" width="320" alt="Zé Pingo dramático">
+  <img src="docs/img/bravo.png" width="320" alt="Clanker bravo">
+  <img src="docs/img/socorro.png" width="320" alt="Clanker dramático">
 </p>
 
 **Ciúme da música:** se você passa mais de 30 s na tela de música, ele volta emburrado, olhando para o outro lado ("hmpf... trocou eu pela música"). Depois de 3 min, fica dramático: "achei que tinha me esquecido!". Um toque nele desfaz o bico.
@@ -104,7 +104,7 @@ Requisitos: JDK 21, Android SDK (API 35) e um servidor com Glances acessível na
 
 ## Desligando
 
-Segure o botão de ligar e toque em **Desligar**. Ao ligar de novo, ele volta direto para o Zé Pingo. Com o cabo no PC também dá: `adb shell reboot -p`.
+Segure o botão de ligar e toque em **Desligar**. Ao ligar de novo, ele volta direto para o Clanker. Com o cabo no PC também dá: `adb shell reboot -p`.
 
 ## Voltando ao normal
 
