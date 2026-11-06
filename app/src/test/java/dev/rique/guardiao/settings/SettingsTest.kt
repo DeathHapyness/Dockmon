@@ -24,6 +24,10 @@ class SettingsTest {
         s.cpuPercent = 70.0
         assertEquals("http://10.0.0.2:61208", s.glancesUrl)
         assertEquals(Thresholds(70.0, 60_000, 90.0, 80.0), s.thresholds())
+
+        assertEquals("branco", s.theme)
+        s.theme = "ambar"
+        assertEquals("ambar", s.theme)
     }
 }
 

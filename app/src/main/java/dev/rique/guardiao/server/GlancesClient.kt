@@ -10,7 +10,9 @@ class GlancesClient(private val baseUrl: String) {
         val cpu = get("cpu/total")?.let(GlancesParser::cpu) ?: return null
         val fs = get("fs")?.let(GlancesParser::fs).orEmpty()
         val sensors = get("sensors")?.let(GlancesParser::sensors).orEmpty()
-        return ServerSnapshot(containers, cpu, fs, sensors)
+        val mem = get("mem")?.let(GlancesParser::mem)
+        val uptime = get("uptime")?.let(GlancesParser::uptime)
+        return ServerSnapshot(containers, cpu, fs, sensors, mem, uptime)
     }
 
     private fun get(path: String): String? {

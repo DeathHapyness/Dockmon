@@ -11,6 +11,8 @@ import android.view.View
 import dev.rique.guardiao.mood.Effect
 import dev.rique.guardiao.mood.Expression
 import dev.rique.guardiao.mood.MoodState
+import dev.rique.guardiao.ui.Theme
+import dev.rique.guardiao.ui.Themes
 import java.util.Random
 import kotlin.math.PI
 import kotlin.math.abs
@@ -19,8 +21,11 @@ import kotlin.math.sin
 
 class FaceView(context: Context) : View(context) {
     private val background = 0xFF07070A.toInt()
-    private val coreWhite = 0xFFF2FBFF.toInt()
-    private val glowWhite = 0xFFBFEFFF.toInt()
+    var theme: Theme = Themes.all[0]
+        set(v) {
+            field = v
+            invalidate()
+        }
     private val coreScared = 0xFFF4A08F.toInt()
     private val glowScared = 0xFFFF6A50.toInt()
     private val scanRed = 0xFFFF5A3C.toInt()
@@ -131,9 +136,9 @@ class FaceView(context: Context) : View(context) {
         val love = s.heart >= 0.5f
         scaredMix += ((if (scared) 1f else 0f) - scaredMix) * k * 1.5f
         loveMix += ((if (state.expression == Expression.APAIXONADO) 1f else 0f) - loveMix) * k * 1.5f
-        eyePaint.color = blend(blend(coreWhite, heartPink, loveMix), coreScared, scaredMix)
-        glowPaint.color = blend(blend(glowWhite, heartGlow, loveMix), glowScared, scaredMix)
-        barPaint.color = glowWhite
+        eyePaint.color = blend(blend(theme.core, heartPink, loveMix), coreScared, scaredMix)
+        glowPaint.color = blend(blend(theme.glow, heartGlow, loveMix), glowScared, scaredMix)
+        barPaint.color = theme.glow
 
         canvas.save()
         canvas.rotate(tilt, cx, cy)

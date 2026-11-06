@@ -10,9 +10,9 @@ import android.widget.FrameLayout
 import kotlin.math.abs
 
 @SuppressLint("ViewConstructor")
-class TwoPageLayout(context: Context, private val first: View, private val second: View) : FrameLayout(context) {
+class PagerLayout(context: Context, private val pages: List<View>, initial: Int) : FrameLayout(context) {
     var onPageChanged: ((Int) -> Unit)? = null
-    var page = 0
+    var page = initial
         private set
 
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
@@ -23,8 +23,7 @@ class TwoPageLayout(context: Context, private val first: View, private val secon
     private var velocity: VelocityTracker? = null
 
     init {
-        addView(first, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-        addView(second, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        pages.forEach { addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)) }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -33,7 +32,7 @@ class TwoPageLayout(context: Context, private val first: View, private val secon
     }
 
     fun showPage(i: Int) {
-        val target = i.coerceIn(0, 1)
+        val target = i.coerceIn(0, pages.lastIndex)
         val changed = target != page
         page = target
         animateTo()
@@ -71,8 +70,8 @@ class TwoPageLayout(context: Context, private val first: View, private val secon
                 velocity = null
                 dragging = false
                 val next = when {
-                    dx < -width * 0.25f || v < -minFling -> 1
-                    dx > width * 0.25f || v > minFling -> 0
+                    dx < -width * 0.25f || v < -minFling -> page + 1
+                    dx > width * 0.25f || v > minFling -> page - 1
                     else -> page
                 }
                 showPage(next)
@@ -83,14 +82,12 @@ class TwoPageLayout(context: Context, private val first: View, private val secon
 
     private fun applyOffset(drag: Float) {
         val base = -page * width.toFloat()
-        val x = (base + drag).coerceIn(-width.toFloat(), 0f)
-        first.translationX = x
-        second.translationX = x + width
+        val x = (base + drag).coerceIn(-pages.lastIndex * width.toFloat(), 0f)
+        pages.forEachIndexed { i, v -> v.translationX = x + i * width }
     }
 
     private fun animateTo() {
         val x = -page * width.toFloat()
-        first.animate().translationX(x).setDuration(250).start()
-        second.animate().translationX(x + width).setDuration(250).start()
+        pages.forEachIndexed { i, v -> v.animate().translationX(x + i * width).setDuration(250).start() }
     }
 }

@@ -3,10 +3,29 @@ package dev.rique.guardiao.server
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import org.json.JSONTokener
 
 object GlancesParser {
     fun containers(json: String): List<ContainerInfo>? = array(json) { o ->
-        ContainerInfo(o.getString("name"), o.optString("status", ""))
+        ContainerInfo(
+            o.getString("name"),
+            o.optString("status", ""),
+            o.optNumber("cpu_percent") ?: 0.0,
+            o.optNumber("memory_usage")?.toLong() ?: 0L,
+            if (o.isNull("uptime")) "" else o.optString("uptime", ""),
+        )
+    }
+
+    fun mem(json: String): Double? = try {
+        JSONObject(json).getDouble("percent")
+    } catch (e: JSONException) {
+        null
+    }
+
+    fun uptime(json: String): String? = try {
+        JSONTokener(json).nextValue() as? String
+    } catch (e: JSONException) {
+        null
     }
 
     fun cpu(json: String): Double? = try {

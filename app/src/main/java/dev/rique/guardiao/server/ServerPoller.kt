@@ -8,7 +8,7 @@ import dev.rique.guardiao.settings.Settings
 class ServerPoller(
     private val settings: Settings,
     private val detector: EventDetector,
-    private val onUpdate: (List<ServerEvent>) -> Unit,
+    private val onUpdate: (List<ServerEvent>, ServerSnapshot?) -> Unit,
 ) {
     private val main = Handler(Looper.getMainLooper())
     private var thread: HandlerThread? = null
@@ -22,11 +22,11 @@ class ServerPoller(
                 detector.thresholds = settings.thresholds()
                 if (snapshot == null) {
                     detector.onFailure(now)
-                    onUpdate(emptyList())
+                    onUpdate(emptyList(), null)
                 } else {
                     val events = detector.onSnapshot(snapshot, now)
                     settings.detectorState = detector.exportState()
-                    onUpdate(events)
+                    onUpdate(events, snapshot)
                 }
             }
             worker?.postDelayed(this, INTERVAL_MS)

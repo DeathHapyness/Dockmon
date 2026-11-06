@@ -5,7 +5,10 @@ import dev.rique.guardiao.server.ServerEvent
 import java.util.Random
 import kotlin.math.roundToInt
 
-class MoodEngine(private val random: Random) {
+class MoodEngine(
+    private val random: Random,
+    private val hourOf: (Long) -> Int = DayPeriod::localHour,
+) {
     private class Quirk(
         val expression: Expression = Expression.CONTENTE,
         val gazeX: Float = 0f,
@@ -14,6 +17,7 @@ class MoodEngine(private val random: Random) {
         val tilt: Float = 0f,
         val durationMs: Long = 0,
         val glanceSide: Float = 0f,
+        val effect: Effect = Effect.NONE,
     )
 
     private var eventExpression = Expression.CONTENTE
@@ -26,7 +30,6 @@ class MoodEngine(private val random: Random) {
     private var quirkStartMs = -1L
     private var nextQuirkAtMs = -1L
     private var nextBlinkAtMs = -1L
-    private var lastProblemMs = Long.MIN_VALUE / 2
 
     fun onEvents(events: List<ServerEvent>, nowMs: Long) {
         val e = events.firstOrNull { it is ServerEvent.Down }
@@ -44,7 +47,7 @@ class MoodEngine(private val random: Random) {
     }
 
     fun state(problems: List<Problem>, nowMs: Long): MoodState {
-        if (nextQuirkAtMs < 0) nextQuirkAtMs = nowMs + 4_000 + random.nextInt(16_000)
+        if (nextQuirkAtMs < 0) nextQuirkAtMs = nowMs + quirkGap(nowMs)
         if (nextBlinkAtMs < 0) nextBlinkAtMs = nowMs + 2_500 + random.nextInt(3_500)
 
         if (nowMs < eventUntilMs) {
@@ -54,20 +57,21 @@ class MoodEngine(private val random: Random) {
 
         val top = problems.firstOrNull()
         if (top != null) {
-            lastProblemMs = nowMs
             postponeQuirk(nowMs)
             val expression = expressionFor(top)
             return MoodState(expression, caption = captionFor(top), blink = blink(expression, nowMs))
         }
 
         val q = currentQuirk(nowMs)
-        val expression = q?.expression ?: Expression.CONTENTE
+        val rest = if (DayPeriod.of(hourOf(nowMs)) == DayPeriod.NOITE) Expression.CALMO else Expression.CONTENTE
+        val expression = q?.expression ?: rest
         return MoodState(
             expression,
             gazeX = q?.let { gaze(it, nowMs) } ?: 0f,
             gazeY = q?.gazeY ?: 0f,
             offsetX = q?.offsetX ?: 0f,
             tilt = q?.tilt ?: 0f,
+            effect = q?.effect ?: Effect.NONE,
             caption = "tudo tranquilo",
             blink = blink(expression, nowMs),
         )
@@ -82,13 +86,13 @@ class MoodEngine(private val random: Random) {
 
     private fun postponeQuirk(nowMs: Long) {
         quirk = null
-        if (nextQuirkAtMs <= nowMs) nextQuirkAtMs = nowMs + 4_000 + random.nextInt(16_000)
+        if (nextQuirkAtMs <= nowMs) nextQuirkAtMs = nowMs + quirkGap(nowMs)
     }
 
     private fun currentQuirk(nowMs: Long): Quirk? {
         if (quirk != null && nowMs >= quirkUntilMs) {
             quirk = null
-            nextQuirkAtMs = nowMs + 4_000 + random.nextInt(16_000)
+            nextQuirkAtMs = nowMs + quirkGap(nowMs)
         }
         if (quirk == null && nowMs >= nextQuirkAtMs) {
             val q = pickQuirk(nowMs)
@@ -99,22 +103,43 @@ class MoodEngine(private val random: Random) {
         return quirk
     }
 
+    private fun quirkGap(nowMs: Long): Long = when (DayPeriod.of(hourOf(nowMs))) {
+        DayPeriod.MANHA -> 2_000L + random.nextInt(5_000)
+        DayPeriod.TARDE -> 4_000L + random.nextInt(10_000)
+        DayPeriod.NOITE -> 9_000L + random.nextInt(18_000)
+    }
+
     private fun pickQuirk(nowMs: Long): Quirk {
-        val calm = nowMs - lastProblemMs >= 600_000
+        val hour = hourOf(nowMs)
         val short = 1_200L + random.nextInt(1_300)
         val side = if (random.nextBoolean()) 1f else -1f
-        val options = listOf(
-            2 to Quirk(gazeX = 0.9f * side, durationMs = short),
-            2 to Quirk(glanceSide = side, durationMs = GLANCE_MS),
-            1 to Quirk(gazeY = -0.7f, durationMs = short),
-            2 to Quirk(Expression.CURIOSO, durationMs = short),
-            2 to Quirk(Expression.OBSERVANDO, gazeX = 0.4f * side, durationMs = short),
-            (if (calm) 2 else 1) to Quirk(Expression.SONOLENTO, durationMs = short),
-            (if (calm) 2 else 1) to Quirk(Expression.CALMO, durationMs = short),
-            2 to Quirk(offsetX = (random.nextFloat() - 0.5f) * 0.6f, durationMs = short),
-            2 to Quirk(tilt = 6f * side, durationMs = short),
-            1 to Quirk(Expression.APAIXONADO, durationMs = 3_000),
-        )
+        val look = Quirk(gazeX = 0.9f * side, durationMs = short)
+        val glance = Quirk(glanceSide = side, durationMs = GLANCE_MS)
+        val up = Quirk(gazeY = -0.7f, durationMs = short)
+        val curious = Quirk(Expression.CURIOSO, durationMs = short)
+        val watch = Quirk(Expression.OBSERVANDO, gazeX = 0.4f * side, durationMs = short)
+        val slide = Quirk(offsetX = (random.nextFloat() - 0.5f) * 0.6f, durationMs = short)
+        val tilt = Quirk(tilt = 6f * side, durationMs = short)
+        val heart = Quirk(Expression.APAIXONADO, durationMs = 3_000)
+        val options = when (DayPeriod.of(hour)) {
+            DayPeriod.MANHA -> listOf(
+                3 to look, 3 to glance, 2 to up, 3 to curious, 2 to watch, 3 to slide, 3 to tilt, 1 to heart,
+                2 to Quirk(effect = Effect.BOUNCE, durationMs = 900),
+            )
+            DayPeriod.TARDE -> {
+                val tired = ((hour - 12) / 5f).coerceIn(0f, 1f)
+                listOf(
+                    2 to look, 2 to glance, 1 to up, 2 to curious, 2 to watch, 1 to slide, 2 to tilt, 1 to heart,
+                    2 to Quirk(Expression.CALMO, durationMs = short),
+                    (1 + (tired * 6).roundToInt()) to Quirk(Expression.SONOLENTO, durationMs = short + (tired * 2_500).toLong()),
+                )
+            }
+            DayPeriod.NOITE -> listOf(
+                1 to look, 1 to glance, 1 to watch, 1 to tilt, 1 to heart,
+                2 to Quirk(Expression.SONOLENTO, durationMs = short),
+                1 to Quirk(Expression.CONTENTE, durationMs = short),
+            )
+        }
         var roll = random.nextInt(options.sumOf { it.first })
         for ((weight, q) in options) {
             if (roll < weight) return q

@@ -12,6 +12,8 @@ import android.graphics.RectF
 import android.graphics.Shader
 import android.text.TextUtils
 import android.text.TextPaint
+import dev.rique.guardiao.ui.Theme
+import dev.rique.guardiao.ui.Themes
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -32,12 +34,23 @@ class MusicView(context: Context) : View(context) {
     private val dp = resources.displayMetrics.density
     private fun sp(v: Float) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, v, resources.displayMetrics)
 
-    private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x33FFFFFF }
+    private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val placeholder = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFF16161B.toInt() }
     private val coverPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     private val titlePaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFFFFFFFF.toInt(); textSize = sp(22f); isFakeBoldText = true }
     private val artistPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x99FFFFFF.toInt(); textSize = sp(16f) }
-    private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFFF2FBFF.toInt() }
+    private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    var theme: Theme = Themes.all[0]
+        set(v) {
+            field = v
+            barPaint.color = (v.glow and 0x00FFFFFF) or 0x40000000
+            iconPaint.color = v.core
+            invalidate()
+        }
+
+    init {
+        theme = Themes.all[0]
+    }
     private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x22FFFFFF }
 
     private val coverRect = RectF()

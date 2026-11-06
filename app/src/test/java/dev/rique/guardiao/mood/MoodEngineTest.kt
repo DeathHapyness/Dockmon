@@ -8,7 +8,7 @@ import org.junit.Test
 import java.util.Random
 
 class MoodEngineTest {
-    private fun engine() = MoodEngine(Random(42))
+    private fun engine(hour: Int = 9) = MoodEngine(Random(42)) { hour }
 
     @Test
     fun idle_is_contente_with_caption() {
@@ -156,5 +156,64 @@ class MoodEngineTest {
             t += 100
         }
         assertTrue(found)
+    }
+
+    private fun idleRun(hour: Int, ms: Long = 3_600_000): List<MoodState> {
+        val e = engine(hour)
+        val out = ArrayList<MoodState>()
+        var t = 0L
+        while (t <= ms) {
+            out.add(e.state(emptyList(), t))
+            t += 100
+        }
+        return out
+    }
+
+    private fun quirkCount(states: List<MoodState>) =
+        states.zipWithNext().count { (a, b) -> a.copy(blink = false) != b.copy(blink = false) }
+
+    private fun sleepyShare(states: List<MoodState>) =
+        states.count { it.expression == Expression.SONOLENTO }.toDouble() / states.size
+
+    @Test
+    fun morning_is_more_agitated_than_night() {
+        assertTrue(quirkCount(idleRun(9)) > 2 * quirkCount(idleRun(22)))
+    }
+
+    @Test
+    fun morning_never_sleepy() {
+        assertEquals(0.0, sleepyShare(idleRun(9)), 0.0)
+    }
+
+    @Test
+    fun afternoon_gets_more_tired_as_it_goes() {
+        val early = sleepyShare(idleRun(13))
+        val late = sleepyShare(idleRun(17))
+        assertTrue("early=$early late=$late", early > 0.0)
+        assertTrue("early=$early late=$late", late > early)
+    }
+
+    @Test
+    fun night_rests_calm() {
+        val s = engine(22).state(emptyList(), 0)
+        assertEquals(Expression.CALMO, s.expression)
+        assertEquals("tudo tranquilo", s.caption)
+        assertTrue(idleRun(22).count { it.expression == Expression.CALMO } > idleRun(22).size / 2)
+    }
+
+    @Test
+    fun morning_hops_sometimes() {
+        assertTrue(idleRun(9).any { it.effect == Effect.BOUNCE })
+    }
+
+    @Test
+    fun day_periods_by_hour() {
+        assertEquals(DayPeriod.NOITE, DayPeriod.of(5))
+        assertEquals(DayPeriod.MANHA, DayPeriod.of(6))
+        assertEquals(DayPeriod.MANHA, DayPeriod.of(11))
+        assertEquals(DayPeriod.TARDE, DayPeriod.of(12))
+        assertEquals(DayPeriod.TARDE, DayPeriod.of(17))
+        assertEquals(DayPeriod.NOITE, DayPeriod.of(18))
+        assertEquals(DayPeriod.NOITE, DayPeriod.of(0))
     }
 }

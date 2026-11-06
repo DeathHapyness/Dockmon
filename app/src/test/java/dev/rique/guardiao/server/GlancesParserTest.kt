@@ -39,4 +39,22 @@ class GlancesParserTest {
         assertNull(GlancesParser.containers("<html>"))
         assertNull(GlancesParser.cpu("<html>"))
     }
+
+    @Test
+    fun containers_with_stats() {
+        val json = """[{"name":"cadvisor","status":"healthy","cpu_percent":7.5,"memory_usage":122101760,"uptime":"10 hours"},
+            {"name":"old","status":"exited","cpu_percent":null,"memory_usage":null}]"""
+        val c = GlancesParser.containers(json)!!
+        assertEquals(ContainerInfo("cadvisor", "healthy", 7.5, 122101760L, "10 hours"), c[0])
+        assertEquals(ContainerInfo("old", "exited", 0.0, 0L, ""), c[1])
+    }
+
+    @Test
+    fun mem_and_uptime() {
+        assertEquals(52.2, GlancesParser.mem("""{"total":7751913472,"percent":52.2}""")!!, 0.0)
+        assertNull(GlancesParser.mem("oops"))
+        assertEquals("10:24:14", GlancesParser.uptime("\"10:24:14\""))
+        assertEquals("3 days, 4:01:00", GlancesParser.uptime("\"3 days, 4:01:00\""))
+        assertNull(GlancesParser.uptime("{}"))
+    }
 }

@@ -1,6 +1,6 @@
 # Guardião: guia de uso
 
-O Moto C Plus funciona como um display dedicado. O rosto reage ao servidor pelo Glances; arrastando para o lado aparece a música do Spotify.
+O Moto C Plus funciona como um display dedicado. São três telas: o painel do servidor à esquerda, o rosto no meio (onde ele começa) e a música do Spotify à direita.
 
 ## No dia a dia
 
@@ -11,7 +11,12 @@ O Moto C Plus funciona como um display dedicado. O rosto reage ao servidor pelo 
   - CPU alta, disco cheio ou temperatura alta: fica bravo ou dramático;
   - servidor sem resposta: fica procurando;
   - tudo bem: tem manias aleatórias, incluindo os olhos de coração.
-- **Arrastar para a esquerda:** tela de música com capa e botões ⏮ ⏯ ⏭. As barras estilo cava simulam um ritmo próprio de cada música enquanto ela toca e param no pause. Elas não seguem a batida real, porque o áudio fica no fone do PC. Depois de 60 s sem toque, volta para o rosto.
+  - O humor muda com a hora:
+    - manhã (6h–12h): agitado, mexe muito e dá pulinhos;
+    - tarde (12h–18h): vai ficando cansado, com sono cada vez mais frequente;
+    - noite (18h–6h): calmo, olhos tranquilos e poucas manias.
+- **Arrastar para a direita (painel):** CPU, RAM, disco e temperatura, gráfico da CPU na última hora, tempo ligado e a lista de containers, com os que têm problema primeiro (vermelho = fora, âmbar = não está bem). Embaixo fica a escolha de **tema**: a cor vale para o rosto, a música e o painel.
+- **Arrastar para a esquerda (música):** tela de música com capa e botões ⏮ ⏯ ⏭. As barras estilo cava simulam um ritmo próprio de cada música enquanto ela toca e param no pause. Elas não seguem a batida real, porque o áudio fica no fone do PC. Depois de 60 s sem toque, qualquer tela volta para o rosto.
 - **Configurações escondidas:** segure o **canto superior esquerdo por 5 s**. Ali ficam a URL do Glances, os limites de CPU, disco e temperatura, o brilho e o botão "Sair do modo kiosk".
 
 ## Pelo PC (com o celular no USB)

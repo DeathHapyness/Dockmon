@@ -36,5 +36,9 @@ class Settings(private val prefs: SharedPreferences) {
         get() = prefs.getString("detectorState", null)
         set(v) = prefs.edit().putString("detectorState", v).apply()
 
+    var theme: String
+        get() = prefs.getString("theme", null) ?: "branco"
+        set(v) = prefs.edit().putString("theme", v).apply()
+
     fun thresholds() = Thresholds(cpuPercent, 60_000, diskPercent, defaultTempC)
 }

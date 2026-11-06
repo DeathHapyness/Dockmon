@@ -1,6 +1,12 @@
 package dev.rique.guardiao.server
 
-data class ContainerInfo(val name: String, val status: String)
+data class ContainerInfo(
+    val name: String,
+    val status: String,
+    val cpuPercent: Double = 0.0,
+    val memBytes: Long = 0,
+    val uptime: String = "",
+)
 
 data class FsInfo(val mount: String, val percent: Double)
 
@@ -11,4 +17,6 @@ data class ServerSnapshot(
     val cpuPercent: Double,
     val fs: List<FsInfo>,
     val sensors: List<SensorInfo>,
+    val memPercent: Double? = null,
+    val uptime: String? = null,
 )

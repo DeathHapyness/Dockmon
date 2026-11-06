@@ -20,14 +20,20 @@ import dev.rique.guardiao.server.EventDetector
 import dev.rique.guardiao.server.ServerPoller
 import dev.rique.guardiao.settings.Settings
 import dev.rique.guardiao.settings.SettingsActivity
-import dev.rique.guardiao.ui.TwoPageLayout
+import dev.rique.guardiao.panel.History
+import dev.rique.guardiao.panel.PanelView
+import dev.rique.guardiao.ui.PagerLayout
+import dev.rique.guardiao.ui.Theme
+import dev.rique.guardiao.ui.Themes
 import java.util.Random
 
 class MainActivity : Activity() {
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var settings: Settings
     private lateinit var face: FaceView
-    private lateinit var pages: TwoPageLayout
+    private lateinit var pages: PagerLayout
+    private lateinit var panel: PanelView
+    private val cpuHistory = History(PanelView.HISTORY_SIZE)
     private lateinit var poller: ServerPoller
     private lateinit var music: MusicView
     private lateinit var musicPoller: MusicPoller
@@ -48,7 +54,7 @@ class MainActivity : Activity() {
         override fun run() {
             val now = System.currentTimeMillis()
             face.update(mood.state(detector.problems(now), now))
-            if (pages.page == 1 && now - lastTouchMs > MUSIC_TIMEOUT_MS) pages.showPage(0)
+            if (pages.page != PAGE_FACE && now - lastTouchMs > RETURN_MS) pages.showPage(PAGE_FACE)
             handler.postDelayed(this, 100)
         }
     }
@@ -68,23 +74,31 @@ class MainActivity : Activity() {
             music.show(r, cover)
         }
         music.onControl = { musicPoller.control(it) }
-        pages = TwoPageLayout(this, face, music)
+        panel = PanelView(this)
+        panel.onThemePicked = {
+            settings.theme = it.id
+            applyTheme(it)
+        }
+        applyTheme(Themes.byId(settings.theme))
+        pages = PagerLayout(this, listOf(panel, face, music), PAGE_FACE)
         pages.onPageChanged = { page ->
             lastTouchMs = System.currentTimeMillis()
-            if (page == 1) startMusic() else stopMusic()
+            if (page == PAGE_MUSIC) startMusic() else stopMusic()
         }
         readToken(intent)
         setContentView(pages)
 
-        poller = ServerPoller(settings, detector) { events ->
+        poller = ServerPoller(settings, detector) { events, snapshot ->
             if (events.isNotEmpty()) mood.onEvents(events, System.currentTimeMillis())
+            snapshot?.let { cpuHistory.add(it.cpuPercent.toFloat()) }
+            panel.show(snapshot, settings.thresholds(), cpuHistory.values())
         }
     }
 
     override fun onStart() {
         super.onStart()
         poller.start()
-        if (pages.page == 1) startMusic()
+        if (pages.page == PAGE_MUSIC) startMusic()
         handler.post(tick)
     }
 
@@ -107,6 +121,12 @@ class MainActivity : Activity() {
     private fun stopMusic() {
         musicPoller.stop()
         handler.removeCallbacks(barsFrame)
+    }
+
+    private fun applyTheme(t: Theme) {
+        face.theme = t
+        music.theme = t
+        panel.theme = t
     }
 
     private fun readToken(intent: Intent?) {
@@ -143,7 +163,9 @@ class MainActivity : Activity() {
     }
 
     private companion object {
-        const val MUSIC_TIMEOUT_MS = 60_000L
+        const val RETURN_MS = 60_000L
+        const val PAGE_FACE = 1
+        const val PAGE_MUSIC = 2
         const val EXTRA_REFRESH_TOKEN = "spotifyRefreshToken"
         const val CORNER_PX = 120f
         const val CORNER_HOLD_MS = 5_000L
