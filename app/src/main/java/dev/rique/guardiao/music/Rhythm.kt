@@ -9,31 +9,44 @@ import kotlin.math.max
 class Rhythm(private val random: Random = Random(), val bars: Int = 24) {
     private val out = FloatArray(bars)
     private val noise = FloatArray(bars)
+    private val kickGain = FloatArray(bars)
+    private val hatGain = FloatArray(bars)
+    private val lagMs = DoubleArray(bars) { random.nextDouble() * 70 }
+    private val fall = FloatArray(bars) { 0.035f + random.nextFloat() * 0.06f }
+    private var lastBeat = -1L
 
     fun frame(tMs: Long, playing: Boolean, track: String): FloatArray {
         val beatMs = 60_000.0 / bpmFor(track)
         val beat = (tMs / beatMs).toLong()
-        val phase = (tMs % beatMs) / beatMs
-        val kick = exp(-phase * 6) * if (beat % 4 == 0L) 1.0 else 0.85
-        val hatPhase = ((tMs + beatMs / 2) % beatMs) / beatMs
-        val hat = exp(-hatPhase * 10) * 0.6
+        if (beat != lastBeat) {
+            lastBeat = beat
+            for (b in 0 until bars) {
+                kickGain[b] = 0.45f + random.nextFloat() * 0.55f
+                hatGain[b] = 0.1f + random.nextFloat() * 0.9f
+            }
+        }
+        val accent = if (beat % 4 == 0L) 1.0 else 0.85
 
         for (b in 0 until bars) {
-            noise[b] = noise[b] * 0.7f + random.nextFloat() * 0.3f
+            val t = tMs - lagMs[b]
+            val phase = ((t % beatMs) + beatMs) % beatMs / beatMs
+            val kick = exp(-phase * 6) * accent
+            val hatPhase = (((t + beatMs / 2) % beatMs) + beatMs) % beatMs / beatMs
+            val hat = exp(-hatPhase * 10) * 0.6
+            noise[b] = noise[b] * 0.4f + random.nextFloat() * 0.6f
+
             val x = b / (bars - 1).toDouble()
             val low = (1 - x) * (1 - x)
             val high = x * x
             val mid = 1 - abs(2 * x - 1)
             val target = if (!playing) 0.0
-            else kick * low + hat * high + noise[b] * mid * (0.25 + 0.35 * kick)
-            out[b] = max(target.toFloat().coerceIn(0f, 1f), out[b] - FALL).coerceAtLeast(0f)
+            else 1.4 * kick * low * kickGain[b] + hat * high * hatGain[b] + noise[b] * (0.15 + 0.35 * mid) * (0.4 + 0.6 * kick)
+            out[b] = max(target.toFloat().coerceIn(0f, 1f), out[b] - fall[b]).coerceAtLeast(0f)
         }
         return out.copyOf()
     }
 
     companion object {
-        private const val FALL = 0.06f
-
         fun bpmFor(track: String): Int = 90 + abs(track.hashCode() % 51)
     }
 }

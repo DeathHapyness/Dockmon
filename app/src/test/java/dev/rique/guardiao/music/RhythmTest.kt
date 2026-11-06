@@ -21,11 +21,12 @@ class RhythmTest {
     @Test
     fun kick_on_beat_raises_low_bars() {
         val r = rhythm()
-        val bars = r.frame(0, playing = true, track = "x")
+        var bars = FloatArray(0)
+        for (t in 0L..99L step 33) bars = r.frame(t, playing = true, track = "x")
         val low = bars.take(6).average()
         val high = bars.takeLast(6).average()
         assertTrue("low=$low high=$high", low > high)
-        assertTrue(low > 0.6)
+        assertTrue("low=$low", low > 0.6)
     }
 
     @Test
@@ -55,5 +56,34 @@ class RhythmTest {
         val b = r.frame(250, true, "x").toList()
         assertNotEquals(a, b)
         assertEquals(24, a.size)
+    }
+
+    @Test
+    fun neighbor_bars_move_independently() {
+        val r = rhythm()
+        val series = Array(24) { ArrayList<Double>() }
+        var t = 0L
+        while (t < 20_000) {
+            r.frame(t, true, "x").forEachIndexed { i, v -> series[i].add(v.toDouble()) }
+            t += 33
+        }
+        val corr = (0 until 23).map { correlation(deltas(series[it]), deltas(series[it + 1])) }.average()
+        assertTrue("corr=$corr", corr < 0.5)
+    }
+
+    private fun deltas(s: List<Double>) = s.zipWithNext { a, b -> b - a }
+
+    private fun correlation(a: List<Double>, b: List<Double>): Double {
+        val ma = a.average()
+        val mb = b.average()
+        var num = 0.0
+        var da = 0.0
+        var db = 0.0
+        for (i in a.indices) {
+            num += (a[i] - ma) * (b[i] - mb)
+            da += (a[i] - ma) * (a[i] - ma)
+            db += (b[i] - mb) * (b[i] - mb)
+        }
+        return num / Math.sqrt(da * db)
     }
 }
