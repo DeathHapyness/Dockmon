@@ -178,7 +178,7 @@ class PanelView(context: Context) : View(context) {
         val listTop = top + sp(24f)
         val colGap = dp(16f)
         val colW = (right - left - colGap) / 2
-        val rowH = ((bottom - listTop) / ceil(rows.size / 2.0).toFloat().coerceAtLeast(1f)).coerceIn(sp(17f), sp(30f))
+        val rowH = ((bottom - listTop) / ceil(rows.size / 2.0).toFloat().coerceAtLeast(1f)).coerceIn(sp(14f), sp(30f))
         val capacity = ((bottom - listTop) / rowH).toInt() * 2
         name.textSize = min(sp(14f), rowH * 0.62f)
         small.textSize = name.textSize * 0.85f
