@@ -68,12 +68,12 @@ class MoodEngine(
     }
 
     fun onBackFromMusic(stayedMs: Long, nowMs: Long) {
-        val expression = when {
-            stayedMs >= 180_000 -> Expression.DRAMATICO
-            stayedMs >= 30_000 -> Expression.BRAVO
+        val (expression, caption) = when {
+            stayedMs >= 180_000 -> Expression.DRAMATICO to "achei que tinha sido demitido!"
+            stayedMs >= 30_000 -> Expression.BRAVO to "hmpf... trocou o segurança pela música"
             else -> return
         }
-        touchState = MoodState(expression, gazeX = -0.9f, gazeY = 0.3f)
+        touchState = MoodState(expression, gazeX = -0.9f, gazeY = 0.3f, caption = caption)
         touchUntilMs = nowMs + 4_000
     }
 

@@ -36,7 +36,7 @@ Depois de 60 s sem toque, qualquer tela volta para o Clanker.
 | Servidor sem resposta | fica procurando |
 | Tudo bem | manias aleatórias, olhos de coração de vez em quando |
 
-Ele só fala quando acontece algo com um container ou com o hardware ("PERDI O nginx!", "CPU em 93%, aguenta firme!"). No resto do tempo, só faz caras.
+Ele só fala quando acontece algo com um container ou com o hardware, ou quando fica com ciúme ("PERDI O nginx!", "CPU em 93%, aguenta firme!"). No resto do tempo, só faz caras.
 
 **Quando você toca nele** (ele olha para onde o dedo tocou):
 
@@ -52,7 +52,7 @@ Ele só fala quando acontece algo com um container ou com o hardware ("PERDI O n
   <img src="docs/img/socorro.png" width="320" alt="Clanker dramático">
 </p>
 
-**Ciúme da música:** se você passa mais de 30 s na tela de música, ele volta emburrado, olhando para o outro lado. Depois de 3 min, fica dramático. Um toque nele desfaz o bico.
+**Ciúme da música:** se você passa mais de 30 s na tela de música, ele volta emburrado, olhando para o outro lado: "hmpf... trocou o segurança pela música". Depois de 3 min, fica dramático: "achei que tinha sido demitido!". Um toque nele desfaz o bico.
 
 **A hora do dia:**
 - **Manhã (6h–12h):** agitado, mexe toda hora e dá pulinhos.

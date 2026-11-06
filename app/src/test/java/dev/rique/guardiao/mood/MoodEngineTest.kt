@@ -334,7 +334,7 @@ class MoodEngineTest {
         e.onBackFromMusic(40_000, 1_000)
         val s = e.state(emptyList(), 1_100)
         assertEquals(Expression.BRAVO, s.expression)
-        assertEquals("", s.caption)
+        assertEquals("hmpf... trocou o segurança pela música", s.caption)
         assertTrue(s.gazeX < -0.5f)
         assertTrue(e.state(emptyList(), 5_200).expression != Expression.BRAVO)
     }
@@ -345,7 +345,7 @@ class MoodEngineTest {
         e.onBackFromMusic(200_000, 1_000)
         val s = e.state(emptyList(), 1_100)
         assertEquals(Expression.DRAMATICO, s.expression)
-        assertEquals("", s.caption)
+        assertEquals("achei que tinha sido demitido!", s.caption)
     }
 
     @Test
