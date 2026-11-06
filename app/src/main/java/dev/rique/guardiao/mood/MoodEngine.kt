@@ -57,11 +57,11 @@ class MoodEngine(
         lastTouchMs = nowMs
         val night = DayPeriod.of(hourOf(nowMs)) == DayPeriod.NOITE
         val (expression, effect, caption) = when {
-            touchCount >= 5 -> Triple(Expression.DRAMATICO, Effect.SHAKE, "socorro, tô em serviço!")
-            touchCount >= 3 -> Triple(Expression.BRAVO, Effect.SHAKE, "ei, tô trabalhando!")
-            touchCount == 2 -> Triple(Expression.COMEMORANDO, Effect.BOUNCE, "hehe, em serviço não!")
-            night -> Triple(Expression.SONOLENTO, Effect.NONE, "hm? tô de plantão...")
-            else -> Triple(Expression.CURIOSO, Effect.BOUNCE, "oi, chefe!")
+            touchCount >= 5 -> Triple(Expression.DRAMATICO, Effect.SHAKE, "socorro, alguém me salva!")
+            touchCount >= 3 -> Triple(Expression.BRAVO, Effect.SHAKE, "ei, para de me cutucar!")
+            touchCount == 2 -> Triple(Expression.COMEMORANDO, Effect.BOUNCE, "hehe, cócegas!")
+            night -> Triple(Expression.SONOLENTO, Effect.NONE, "hm? já é de noite...")
+            else -> Triple(Expression.CURIOSO, Effect.BOUNCE, "oi! que bom te ver!")
         }
         touchState = MoodState(expression, gazeX = x, gazeY = y, effect = effect, caption = caption, effectKey = nowMs)
         touchUntilMs = nowMs + if (touchCount >= 3) 2_200 else 1_500

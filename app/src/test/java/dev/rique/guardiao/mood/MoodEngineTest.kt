@@ -246,7 +246,7 @@ class MoodEngineTest {
         assertEquals(0.8f, s.gazeX, 0.001f)
         assertEquals(-0.5f, s.gazeY, 0.001f)
         assertEquals(Effect.BOUNCE, s.effect)
-        assertEquals("oi, chefe!", s.caption)
+        assertEquals("oi! que bom te ver!", s.caption)
     }
 
     @Test
@@ -264,7 +264,7 @@ class MoodEngineTest {
         val t = taps(e, 2)
         val s = e.state(emptyList(), t + 100)
         assertEquals(Expression.COMEMORANDO, s.expression)
-        assertEquals("hehe, em serviço não!", s.caption)
+        assertEquals("hehe, cócegas!", s.caption)
     }
 
     @Test
@@ -274,11 +274,11 @@ class MoodEngineTest {
         val angry = e.state(emptyList(), t3 + 100)
         assertEquals(Expression.BRAVO, angry.expression)
         assertEquals(Effect.SHAKE, angry.effect)
-        assertEquals("ei, tô trabalhando!", angry.caption)
+        assertEquals("ei, para de me cutucar!", angry.caption)
         val t5 = taps(e, 2, t3 + 300)
         val drama = e.state(emptyList(), t5 + 100)
         assertEquals(Expression.DRAMATICO, drama.expression)
-        assertEquals("socorro, tô em serviço!", drama.caption)
+        assertEquals("socorro, alguém me salva!", drama.caption)
     }
 
     @Test
@@ -306,7 +306,7 @@ class MoodEngineTest {
         val s = e.state(emptyList(), 1_100)
         assertEquals(Expression.SONOLENTO, s.expression)
         assertEquals(-0.6f, s.gazeX, 0.001f)
-        assertEquals("hm? tô de plantão...", s.caption)
+        assertEquals("hm? já é de noite...", s.caption)
     }
 
     @Test

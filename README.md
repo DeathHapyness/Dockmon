@@ -42,10 +42,10 @@ Ele fala quando acontece algo com um container ou com o hardware, quando você t
 
 | Toques seguidos | Reação |
 |---|---|
-| 1 | "oi, chefe!" e um pulinho (à noite: "hm? tô de plantão...", com sono) |
-| 2 | "hehe, em serviço não!", com cócegas |
-| 3–4 | "ei, tô trabalhando!", bravo |
-| 5 ou mais | "socorro, tô em serviço!", dramático |
+| 1 | "oi! que bom te ver!" e um pulinho (à noite: "hm? já é de noite...", com sono) |
+| 2 | "hehe, cócegas!", com cócegas |
+| 3–4 | "ei, para de me cutucar!", bravo |
+| 5 ou mais | "socorro, alguém me salva!", dramático |
 
 <p align="center">
   <img src="docs/img/bravo.png" width="320" alt="Clanker bravo">
